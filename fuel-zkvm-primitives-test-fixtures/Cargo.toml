@@ -15,8 +15,8 @@ fuel-core = { version = "0.40.0", features = [
 fuel-core-executor = { workspace = true }
 fuel-core-storage = { workspace = true }
 fuel-core-types = { workspace = true }
-fuels = "0.66.5"
-fuels-core = "0.66.9"
+fuels = "0.66.10"
+fuels-core = "0.66.10"
 fuel-zkvm-primitives-input-provider = { path = "../fuel-zkvm-primitives-input-provider" }
 fuel-zkvm-primitives-prover = { path = "../fuel-zkvm-primitives-prover" }
 fuel-zkvm-primitives-utils = { path = "../fuel-zkvm-primitives-utils" }
