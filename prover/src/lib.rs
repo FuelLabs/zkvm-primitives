@@ -98,7 +98,7 @@ pub fn prove(input_bytes: &[u8]) -> ExecutorResult<PublicValuesStruct> {
         relayer,
     } = input;
 
-    let panic_storage = PanicStorage::default();
+    let panic_storage = PanicStorage;
     let storage = StorageTransaction::transaction(panic_storage, ConflictPolicy::Fail, storage);
 
     let validator = ExecutionInstance::new(

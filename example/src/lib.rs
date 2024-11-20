@@ -19,11 +19,15 @@ use input_provider::{
     relayer_recorder::RelayerRecorder, storage_access_recorder::StorageAccessRecorder,
 };
 use std::{net::SocketAddr, path::Path};
+use utils::vm::Instruction;
 
 const CONSENSUS_PARAMETERS: &[u8] = include_bytes!("fixtures/test_consensus_parameters.json");
 
-async fn send_script_transaction(wallet: &WalletUnlocked) -> anyhow::Result<BlockHeight> {
-    let script = utils::vm::alu::add();
+async fn send_script_transaction(
+    instruction: Instruction,
+    wallet: &WalletUnlocked,
+) -> anyhow::Result<BlockHeight> {
+    let script = instruction.repr();
 
     let mut builder = ScriptTransactionBuilder::default().with_script(script);
     wallet.add_witnesses(&mut builder)?;
@@ -85,7 +89,9 @@ async fn get_wallet(socket: SocketAddr) -> WalletUnlocked {
     WalletUnlocked::new_from_private_key(secret_key, Some(provider))
 }
 
-pub async fn start_node_with_transaction_and_produce_prover_input() -> anyhow::Result<Service> {
+pub async fn start_node_with_transaction_and_produce_prover_input(
+    instruction: Instruction,
+) -> anyhow::Result<Service> {
     // Suggest to set "RUST_LOG=info;FUEL_TRACE=1" to see the logs
     // If you want to change the block gas limit,
     // please update next values in the `test_test_consensus_parameters.json`:
@@ -98,7 +104,7 @@ pub async fn start_node_with_transaction_and_produce_prover_input() -> anyhow::R
         FuelService::new_node(get_config(&mut consensus_parameters, tmp.path())).await?;
 
     let wallet = get_wallet(fuel_node.bound_address).await;
-    let tx_inclusion_block_height = send_script_transaction(&wallet).await?;
+    let tx_inclusion_block_height = send_script_transaction(instruction, &wallet).await?;
 
     let on_chain_database = fuel_node.shared.database.on_chain();
     let block_height_before_tx = tx_inclusion_block_height.pred().expect("Impossible");
@@ -143,7 +149,7 @@ mod tests {
     #[tokio::test]
     async fn prover_can_verify() {
         init_logging();
-        let service = start_node_with_transaction_and_produce_prover_input()
+        let service = start_node_with_transaction_and_produce_prover_input(Instruction::ADD)
             .await
             .unwrap();
 
