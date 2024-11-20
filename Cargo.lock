@@ -3074,6 +3074,7 @@ dependencies = [
  "fuel-zkvm-primitives-utils",
  "fuels",
  "fuels-core",
+ "paste",
  "serde_json",
  "tempfile",
  "tokio",

@@ -23,3 +23,6 @@ fuel-zkvm-primitives-utils = { path = "../fuel-zkvm-primitives-utils" }
 serde_json = { version = "1", default-features = false }
 tempfile = "3.14.0"
 tokio = { workspace = true }
+
+[dev-dependencies]
+paste = "1.0"

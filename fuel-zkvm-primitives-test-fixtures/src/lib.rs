@@ -146,11 +146,8 @@ pub async fn start_node_with_transaction_and_produce_prover_input(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use fuel_zkvm_primitives_utils::logs::init_logging;
 
     async fn basic_alu_test(instruction: Instruction) {
-        init_logging();
-
         let service = start_node_with_transaction_and_produce_prover_input(instruction)
             .await
             .unwrap();
@@ -160,13 +157,63 @@ mod tests {
         assert_eq!(block_id, proof.block_id.to_be_bytes())
     }
 
-    #[tokio::test]
-    async fn prover_can_verify__alu__add() {
-        basic_alu_test(Instruction::ADDI).await;
+    macro_rules! alu_test {
+        ($instruction:ident) => {
+            paste::paste! {
+                #[tokio::test]
+                async fn [<test_alu_instruction_ $instruction:lower>]() {
+                    basic_alu_test(Instruction::$instruction).await;
+                }
+            }
+        };
     }
 
-    #[tokio::test]
-    async fn prover_can_verify__alu__mul() {
-        basic_alu_test(Instruction::MULI).await;
-    }
+    // ALU Tests. Compare the number with alu.rs
+    // TODO: maybe proc-macro's can simplify this
+    alu_test!(ADD);
+    alu_test!(ADDI);
+    alu_test!(AND);
+    alu_test!(ANDI);
+    alu_test!(DIV);
+    alu_test!(DIVI);
+    alu_test!(EQ);
+    alu_test!(EXP);
+    alu_test!(EXPI);
+    alu_test!(GT);
+    alu_test!(LT);
+    alu_test!(MLOG);
+    alu_test!(MOD);
+    alu_test!(MODI);
+    alu_test!(MOVE);
+    alu_test!(MOVI);
+    alu_test!(MROO);
+    alu_test!(MUL);
+    alu_test!(MULI);
+    alu_test!(MLDV);
+    alu_test!(NOOP);
+    alu_test!(NOT);
+    alu_test!(OR);
+    alu_test!(ORI);
+    alu_test!(SLL);
+    alu_test!(SLLI);
+    alu_test!(SRL);
+    alu_test!(SRLI);
+    alu_test!(SUB);
+    alu_test!(SUBI);
+    alu_test!(WDCM);
+    alu_test!(WDOP);
+    alu_test!(WDML);
+    alu_test!(WDDV);
+    alu_test!(WDMD);
+    alu_test!(WDAM);
+    alu_test!(WDMM);
+    alu_test!(WQCM);
+    alu_test!(WQOP);
+    alu_test!(WQML);
+    alu_test!(WQDV);
+    alu_test!(WQMD);
+    alu_test!(WQAM);
+    alu_test!(WQMM);
+    alu_test!(XOR);
+    alu_test!(XORI);
 }
