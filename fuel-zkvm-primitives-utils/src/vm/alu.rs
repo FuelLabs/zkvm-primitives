@@ -1,5 +1,7 @@
+use fuel_core_types::fuel_asm::wideint::{
+    CompareArgs, CompareMode, DivArgs, MathArgs, MathOp, MulArgs,
+};
 use fuel_core_types::fuel_asm::{op, Instruction, RegId};
-use fuel_core_types::fuel_asm::wideint::{CompareArgs, CompareMode};
 
 /// This file contains helpers to generate scripts with various alu operations in an infinite loop.
 /// Below is a checklist of what has been implemented and what hasn't
@@ -35,17 +37,17 @@ use fuel_core_types::fuel_asm::wideint::{CompareArgs, CompareMode};
 // - [x] **SUBI**: Subtract immediate
 // - [x] **WDCM**: 128-bit integer comparison
 // - [ ] **WQCM**: 256-bit integer comparison
-// - [ ] **WDOP**: Misc 128-bit integer operations
+// - [x] **WDOP**: Misc 128-bit integer operations
 // - [ ] **WQOP**: Misc 256-bit integer operations
-// - [ ] **WDML**: Multiply 128-bit integers
+// - [x] **WDML**: Multiply 128-bit integers
 // - [ ] **WQML**: Multiply 256-bit integers
-// - [ ] **WDDV**: 128-bit integer division
+// - [x] **WDDV**: 128-bit integer division
 // - [ ] **WQDV**: 256-bit integer division
-// - [ ] **WDMD**: 128-bit integer fused multiply-divide
+// - [x] **WDMD**: 128-bit integer fused multiply-divide
 // - [ ] **WQMD**: 256-bit integer fused multiply-divide
-// - [ ] **WDAM**: Modular 128-bit integer addition
+// - [x] **WDAM**: Modular 128-bit integer addition
 // - [ ] **WQAM**: Modular 256-bit integer addition
-// - [ ] **WDMM**: Modular 128-bit integer multiplication
+// - [x] **WDMM**: Modular 128-bit integer multiplication
 // - [ ] **WQMM**: Modular 256-bit integer multiplication
 // - [ ] **XOR**: XOR
 // - [ ] **XORI**: XOR immediate
@@ -377,7 +379,7 @@ fn make_u256(reg: u8, v: ethnum::U256) -> Vec<Instruction> {
     alloc_bytearray(reg, v.to_be_bytes())
 }
 
-fn prepared_default_wideint() -> Vec<Instruction> {
+fn prepared_wideint_u128() -> Vec<Instruction> {
     let mut wideint_prepare = Vec::new();
     wideint_prepare.extend(make_u128(0x10, 0));
     wideint_prepare.extend(make_u128(0x11, u128::MAX));
@@ -389,7 +391,7 @@ fn prepared_default_wideint() -> Vec<Instruction> {
 }
 
 pub fn wdcm() -> Vec<u8> {
-    let mut harness = prepared_default_wideint();
+    let mut harness = prepared_wideint_u128();
     harness.extend(vec![
         op::wdcm_args(
             0x10,
@@ -406,3 +408,78 @@ pub fn wdcm() -> Vec<u8> {
     harness.into_iter().collect()
 }
 
+pub fn wdop() -> Vec<u8> {
+    let mut harness = prepared_wideint_u128();
+    harness.extend(vec![
+        op::wdop_args(
+            0x10,
+            0x13,
+            0x12,
+            MathArgs {
+                op: MathOp::SUB,
+                indirect_rhs: true,
+            },
+        ),
+        op::jmpb(RegId::ZERO, 0),
+    ]);
+
+    harness.into_iter().collect()
+}
+
+pub fn wdml() -> Vec<u8> {
+    let mut harness = prepared_wideint_u128();
+    harness.extend(vec![
+        op::wdml_args(
+            0x10,
+            0x14,
+            0x14,
+            MulArgs {
+                indirect_lhs: true,
+                indirect_rhs: true,
+            },
+        ),
+        op::jmpb(RegId::ZERO, 0),
+    ]);
+
+    harness.into_iter().collect()
+}
+
+pub fn wddv() -> Vec<u8> {
+    let mut harness = prepared_wideint_u128();
+    harness.extend(vec![
+        op::wddv_args(0x10, 0x12, 0x13, DivArgs { indirect_rhs: true }),
+        op::jmpb(RegId::ZERO, 0),
+    ]);
+
+    harness.into_iter().collect()
+}
+
+pub fn wdmd() -> Vec<u8> {
+    let mut harness = prepared_wideint_u128();
+    harness.extend(vec![
+        op::wdmd(0x10, 0x12, 0x13, 0x13),
+        op::jmpb(RegId::ZERO, 0),
+    ]);
+
+    harness.into_iter().collect()
+}
+
+pub fn wdam() -> Vec<u8> {
+    let mut harness = prepared_wideint_u128();
+    harness.extend(vec![
+        op::wdam(0x10, 0x12, 0x13, 0x13),
+        op::jmpb(RegId::ZERO, 0),
+    ]);
+
+    harness.into_iter().collect()
+}
+
+pub fn wdmm() -> Vec<u8> {
+    let mut harness = prepared_wideint_u128();
+    harness.extend(vec![
+        op::wdmm(0x10, 0x12, 0x13, 0x13),
+        op::jmpb(RegId::ZERO, 0),
+    ]);
+
+    harness.into_iter().collect()
+}

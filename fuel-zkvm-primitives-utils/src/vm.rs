@@ -34,6 +34,12 @@ pub enum Instruction {
     SUB,
     SUBI,
     WDCM,
+    WDOP,
+    WDML,
+    WDDV,
+    WDMD,
+    WDAM,
+    WDMM,
 }
 
 impl Instruction {
@@ -70,6 +76,12 @@ impl Instruction {
             Instruction::SRL => alu::srl(),
             Instruction::SRLI => alu::srli(),
             Instruction::WDCM => alu::wdcm(),
+            Instruction::WDOP => alu::wdop(),
+            Instruction::WDML => alu::wdml(),
+            Instruction::WDDV => alu::wddv(),
+            Instruction::WDMD => alu::wdmd(),
+            Instruction::WDAM => alu::wdam(),
+            Instruction::WDMM => alu::wdmm(),
         }
     }
 }
