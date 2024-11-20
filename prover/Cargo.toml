@@ -1,0 +1,13 @@
+[package]
+name = "prover"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+alloy-sol-types = { workspace = true }
+anyhow = { version = "1", default-features = false }
+bincode = { workspace = true }
+fuel-core-executor = { workspace = true }
+fuel-core-storage = { workspace = true }
+fuel-core-types = { workspace = true }
+serde = { version = "1", default-features = false, features = ["derive"] }

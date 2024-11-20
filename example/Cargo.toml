@@ -1,0 +1,24 @@
+[package]
+name = "utils"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = { workspace = true }
+bincode = { workspace = true }
+fuel-core = { version = "0.40.0", features = [
+  "rocksdb",
+  "wasm-executor",
+  "relayer",
+  "test-helpers",
+] }
+fuel-core-executor = { workspace = true }
+fuel-core-storage = { workspace = true }
+fuel-core-types = { workspace = true }
+fuels = "0.66.5"
+fuels-core = "0.66.9"
+input-provider = { path = "../input-provider" }
+prover = { path = "../prover" }
+serde_json = { version = "1", default-features = false }
+tempfile = "3.14.0"
+tokio = { workspace = true }

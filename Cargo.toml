@@ -1,0 +1,19 @@
+[workspace]
+members = ["input-provider", "prover", "example"]
+resolver = "2"
+
+[workspace.dependencies]
+anyhow = { version = "1", default-features = false }
+alloy-sol-types = "0.8.12"
+bincode = { version = "1.3.3", default-features = false }
+fuel-core-executor = { version = "0.40.0", default-features = false, features = [
+  "alloc",
+] }
+fuel-core-storage = { version = "0.40.0", default-features = false, features = [
+  "alloc",
+] }
+fuel-core-types = { version = "0.40.0", default-features = false, features = [
+  "serde",
+  "test-helpers",
+] }
+tokio = { version = "1.40.0", features = ["macros", "rt-multi-thread"] }
