@@ -19,7 +19,8 @@ use input_provider::{
     relayer_recorder::RelayerRecorder, storage_access_recorder::StorageAccessRecorder,
 };
 use std::{net::SocketAddr, path::Path};
-use utils::vm::Instruction;
+
+pub use utils::vm::Instruction;
 
 const CONSENSUS_PARAMETERS: &[u8] = include_bytes!("fixtures/test_consensus_parameters.json");
 
