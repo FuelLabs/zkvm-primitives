@@ -22,6 +22,15 @@ pub enum Instruction {
     MROO,
     MUL,
     MULI,
+    MLDV,
+    NOOP,
+    NOT,
+    OR,
+    ORI,
+    SLL,
+    SLLI,
+    SRL,
+    SRLI,
     SUB,
     SUBI,
 }
@@ -50,6 +59,15 @@ impl Instruction {
             Instruction::MULI => alu::muli(),
             Instruction::SUB => alu::sub(),
             Instruction::SUBI => alu::subi(),
+            Instruction::MLDV => alu::mldv(),
+            Instruction::NOOP => alu::noop(),
+            Instruction::NOT => alu::not(),
+            Instruction::OR => alu::or(),
+            Instruction::ORI => alu::ori(),
+            Instruction::SLL => alu::sll(),
+            Instruction::SLLI => alu::slli(),
+            Instruction::SRL => alu::srl(),
+            Instruction::SRLI => alu::srli(),
         }
     }
 }

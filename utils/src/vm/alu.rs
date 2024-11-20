@@ -21,15 +21,15 @@ use fuel_core_types::fuel_asm::{op, RegId};
 // - [x] **MROO**: Math root
 // - [x] **MUL**: Multiply
 // - [x] **MULI**: Multiply immediate
-// - [ ] **MLDV**: Fused multiply-divide
-// - [ ] **NOOP**: No operation
-// - [ ] **NOT**: Invert
-// - [ ] **OR**: OR
-// - [ ] **ORI**: OR immediate
-// - [ ] **SLL**: Shift left logical
-// - [ ] **SLLI**: Shift left logical immediate
-// - [ ] **SRL**: Shift right logical
-// - [ ] **SRLI**: Shift right logical immediate
+// - [x] **MLDV**: Fused multiply-divide
+// - [x] **NOOP**: No operation
+// - [x] **NOT**: Invert
+// - [x] **OR**: OR
+// - [x] **ORI**: OR immediate
+// - [x] **SLL**: Shift left logical
+// - [x] **SLLI**: Shift left logical immediate
+// - [x] **SRL**: Shift right logical
+// - [x] **SRLI**: Shift right logical immediate
 // - [x] **SUB**: Subtract
 // - [x] **SUBI**: Subtract immediate
 // - [ ] **WDCM**: 128-bit integer comparison
@@ -261,6 +261,93 @@ pub fn muli() -> Vec<u8> {
     [
         op::movi(0x10, 1024),
         op::muli(0x11, 0x10, 10),
+        op::jmpb(RegId::ZERO, 0),
+    ]
+    .into_iter()
+    .collect()
+}
+
+pub fn mldv() -> Vec<u8> {
+    [
+        op::movi(0x10, 1024),
+        op::movi(0x11, 5),
+        op::movi(0x12, 10),
+        op::mldv(0x13, 0x10, 0x11, 0x12),
+        op::jmpb(RegId::ZERO, 0),
+    ]
+    .into_iter()
+    .collect()
+}
+
+pub fn noop() -> Vec<u8> {
+    [op::noop(), op::jmpb(RegId::ZERO, 0)].into_iter().collect()
+}
+
+pub fn not() -> Vec<u8> {
+    [
+        op::movi(0x10, 1024),
+        op::not(0x11, 0x10),
+        op::jmpb(RegId::ZERO, 0),
+    ]
+    .into_iter()
+    .collect()
+}
+
+pub fn or() -> Vec<u8> {
+    [
+        op::movi(0x10, 1024),
+        op::movi(0x11, 123),
+        op::or(0x12, 0x10, 0x11),
+        op::jmpb(RegId::ZERO, 0),
+    ]
+    .into_iter()
+    .collect()
+}
+
+pub fn ori() -> Vec<u8> {
+    [
+        op::movi(0x10, 1024),
+        op::ori(0x11, 0x10, 123),
+        op::jmpb(RegId::ZERO, 0),
+    ]
+    .into_iter()
+    .collect()
+}
+
+pub fn sll() -> Vec<u8> {
+    [
+        op::movi(0x10, 1024),
+        op::sll(0x11, 0x10, 2),
+        op::jmpb(RegId::ZERO, 0),
+    ]
+    .into_iter()
+    .collect()
+}
+
+pub fn slli() -> Vec<u8> {
+    [
+        op::movi(0x10, 1024),
+        op::slli(0x11, 0x10, 2),
+        op::jmpb(RegId::ZERO, 0),
+    ]
+    .into_iter()
+    .collect()
+}
+
+pub fn srl() -> Vec<u8> {
+    [
+        op::movi(0x10, 1024),
+        op::srl(0x11, 0x10, 2),
+        op::jmpb(RegId::ZERO, 0),
+    ]
+    .into_iter()
+    .collect()
+}
+
+pub fn srli() -> Vec<u8> {
+    [
+        op::movi(0x10, 1024),
+        op::srli(0x11, 0x10, 2),
         op::jmpb(RegId::ZERO, 0),
     ]
     .into_iter()
