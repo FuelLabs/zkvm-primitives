@@ -1,17 +1,9 @@
 use fuel_core_storage::{
-    kv_store::{
-        KeyValueInspect,
-        StorageColumn,
-        Value,
-        WriteOperation,
-    },
+    kv_store::{KeyValueInspect, StorageColumn, Value, WriteOperation},
     transactional::Changes,
     Result as StorageResult,
 };
-use std::{
-    cell::RefCell,
-    sync::Arc,
-};
+use std::{cell::RefCell, sync::Arc};
 
 /// The in-memory storage for testing purposes.
 #[derive(Clone, Debug, PartialEq, Eq)]

@@ -1,5 +1,5 @@
 [package]
-name = "example"
+name = "utils"
 version = "0.1.0"
 edition = "2021"
 
@@ -19,7 +19,6 @@ fuels = "0.66.5"
 fuels-core = "0.66.9"
 input-provider = { path = "../input-provider" }
 prover = { path = "../prover" }
-utils = { path = "../utils" }
 serde_json = { version = "1", default-features = false }
 tempfile = "3.14.0"
 tokio = { workspace = true }

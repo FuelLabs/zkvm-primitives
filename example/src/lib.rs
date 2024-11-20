@@ -1,67 +1,29 @@
-use input_provider::{
-    relayer_recorder::RelayerRecorder,
-    storage_access_recorder::StorageAccessRecorder,
-};
 use fuel_core::{
-    chain_config::{
-        ChainConfig,
-        StateConfig,
-        TESTNET_WALLET_SECRETS,
-    },
-    service::{
-        Config,
-        FuelService,
-    },
+    chain_config::{ChainConfig, StateConfig, TESTNET_WALLET_SECRETS},
+    service::{Config, FuelService},
     state::historical_rocksdb::StateRewindPolicy,
 };
-use fuel_core_executor::executor::{
-    ExecutionInstance,
-    ExecutionOptions,
-};
-use fuel_core_storage::transactional::{
-    AtomicView,
-    HistoricalView,
-};
+use fuel_core_executor::executor::{ExecutionInstance, ExecutionOptions};
+use fuel_core_storage::transactional::{AtomicView, HistoricalView};
 use fuel_core_types::{
-    fuel_asm::{
-        op,
-        RegId,
-    },
     fuel_crypto::SecretKey,
-    fuel_tx::{
-        Bytes32,
-        ConsensusParameters,
-    },
+    fuel_tx::{Bytes32, ConsensusParameters},
 };
 use fuels::{
     accounts::Account,
-    prelude::{
-        Provider,
-        WalletUnlocked,
-    },
+    prelude::{Provider, WalletUnlocked},
     types::BlockHeight,
 };
-use fuels_core::types::transaction_builders::{
-    BuildableTransaction,
-    ScriptTransactionBuilder,
+use fuels_core::types::transaction_builders::{BuildableTransaction, ScriptTransactionBuilder};
+use input_provider::{
+    relayer_recorder::RelayerRecorder, storage_access_recorder::StorageAccessRecorder,
 };
-use std::{
-    net::SocketAddr,
-    path::Path,
-};
+use std::{net::SocketAddr, path::Path};
 
 const CONSENSUS_PARAMETERS: &[u8] = include_bytes!("fixtures/test_consensus_parameters.json");
 
-
-
 async fn send_script_transaction(wallet: &WalletUnlocked) -> anyhow::Result<BlockHeight> {
-    let script = [
-        op::movi(0x10, 1024),
-        op::addi(0x11, 0x10, 1024),
-        op::jmpb(RegId::ZERO, 0),
-    ]
-        .into_iter()
-        .collect();
+    let script = utils::vm::alu::add();
 
     let mut builder = ScriptTransactionBuilder::default().with_script(script);
     wallet.add_witnesses(&mut builder)?;
@@ -123,26 +85,24 @@ async fn get_wallet(socket: SocketAddr) -> WalletUnlocked {
     WalletUnlocked::new_from_private_key(secret_key, Some(provider))
 }
 
-pub async fn start_node_with_transaction_and_produce_prover_input(
-) -> anyhow::Result<Service> {
+pub async fn start_node_with_transaction_and_produce_prover_input() -> anyhow::Result<Service> {
     // Suggest to set "RUST_LOG=info;FUEL_TRACE=1" to see the logs
     // If you want to change the block gas limit,
     // please update next values in the `test_test_consensus_parameters.json`:
     // `max_gas_per_tx`, `max_gas_per_predicate` and `block_gas_limit`
     let tmp = tempfile::tempdir().expect("Unable to create temp dir");
     let mut consensus_parameters =
-        serde_json::from_slice::<ConsensusParameters>(CONSENSUS_PARAMETERS)
-            .expect("Invalid JSON");
+        serde_json::from_slice::<ConsensusParameters>(CONSENSUS_PARAMETERS).expect("Invalid JSON");
 
-    let fuel_node = FuelService::new_node(get_config(&mut consensus_parameters, tmp.path())).await?;
+    let fuel_node =
+        FuelService::new_node(get_config(&mut consensus_parameters, tmp.path())).await?;
 
     let wallet = get_wallet(fuel_node.bound_address).await;
     let tx_inclusion_block_height = send_script_transaction(&wallet).await?;
 
     let on_chain_database = fuel_node.shared.database.on_chain();
     let block_height_before_tx = tx_inclusion_block_height.pred().expect("Impossible");
-    let on_chain_storage_at_height =
-        on_chain_database.view_at(&block_height_before_tx)?;
+    let on_chain_storage_at_height = on_chain_database.view_at(&block_height_before_tx)?;
 
     // We don't need to specify the height for the relayer.
     // Relayer stores events for all height from DA.

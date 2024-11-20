@@ -2219,6 +2219,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "example"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bincode",
+ "fuel-core",
+ "fuel-core-executor",
+ "fuel-core-storage",
+ "fuel-core-types 0.40.0",
+ "fuels",
+ "fuels-core",
+ "input-provider",
+ "prover",
+ "serde_json",
+ "tempfile",
+ "tokio",
+ "utils",
+]
+
+[[package]]
 name = "eyre"
 version = "0.6.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"

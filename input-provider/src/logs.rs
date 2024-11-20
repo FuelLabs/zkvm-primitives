@@ -1,20 +1,13 @@
 use core::str::FromStr;
 use std::env;
-use tracing_subscriber::{
-    filter::EnvFilter,
-    layer::SubscriberExt,
-    registry,
-    Layer,
-};
+use tracing_subscriber::{filter::EnvFilter, layer::SubscriberExt, registry, Layer};
 
 pub const LOG_FILTER: &str = "RUST_LOG";
 pub const HUMAN_LOGGING: &str = "HUMAN_LOGGING";
 
 pub fn init_logging() {
     let filter = match env::var_os(LOG_FILTER) {
-        Some(_) => {
-            EnvFilter::try_from_default_env().expect("Invalid `RUST_LOG` provided")
-        }
+        Some(_) => EnvFilter::try_from_default_env().expect("Invalid `RUST_LOG` provided"),
         None => EnvFilter::new("info"),
     };
 
@@ -50,6 +43,5 @@ pub fn init_logging() {
         .with(filter) // filter out low-level debug tracing (eg tokio executor)
         .with(fmt); // log to stdout
 
-    tracing::subscriber::set_global_default(subscriber)
-        .expect("setting global default failed");
+    tracing::subscriber::set_global_default(subscriber).expect("setting global default failed");
 }

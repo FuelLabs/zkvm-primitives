@@ -1,18 +1,8 @@
 use fuel_core_executor::ports::RelayerPort;
 use fuel_core_relayer::storage::EventsHistory;
-use fuel_core_storage::{
-    Error as StorageError,
-    StorageAsRef,
-    StorageInspect,
-};
-use fuel_core_types::{
-    blockchain::primitives::DaBlockHeight,
-    services::relayer::Event,
-};
-use std::{
-    cell::RefCell,
-    sync::Arc,
-};
+use fuel_core_storage::{Error as StorageError, StorageAsRef, StorageInspect};
+use fuel_core_types::{blockchain::primitives::DaBlockHeight, services::relayer::Event};
+use std::{cell::RefCell, sync::Arc};
 
 #[derive(Debug, Clone)]
 pub struct RelayerRecorder<S> {

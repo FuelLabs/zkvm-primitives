@@ -1,5 +1,5 @@
 [workspace]
-members = ["input-provider", "prover", "example"]
+members = ["input-provider", "prover", "example", "utils"]
 resolver = "2"
 
 [workspace.dependencies]

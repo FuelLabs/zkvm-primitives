@@ -5,34 +5,18 @@
 
 use crate::memory::PanicStorage;
 use alloc::collections::BTreeMap;
-use alloy_sol_types::{
-    private::U256,
-    sol,
-};
+use alloy_sol_types::{private::U256, sol};
 use core::cell::RefCell;
 use fuel_core_executor::{
-    executor::{
-        ExecutionInstance,
-        ExecutionOptions,
-    },
+    executor::{ExecutionInstance, ExecutionOptions},
     ports::RelayerPort,
 };
-use fuel_core_storage::transactional::{
-    Changes,
-    ConflictPolicy,
-    StorageTransaction,
-};
+use fuel_core_storage::transactional::{Changes, ConflictPolicy, StorageTransaction};
 use fuel_core_types::{
-    blockchain::{
-        block::Block,
-        primitives::DaBlockHeight,
-    },
+    blockchain::{block::Block, primitives::DaBlockHeight},
     fuel_crypto,
     services::{
-        executor::{
-            Error as ExecutorError,
-            Result as ExecutorResult,
-        },
+        executor::{Error as ExecutorError, Result as ExecutorResult},
         relayer::Event,
     },
 };
@@ -83,10 +67,7 @@ impl RelayerPort for Relayer {
 mod memory {
     use fuel_core_storage::{
         column::Column,
-        kv_store::{
-            KeyValueInspect,
-            Value,
-        },
+        kv_store::{KeyValueInspect, Value},
         Result as StorageResult,
     };
 
@@ -118,8 +99,7 @@ pub fn prove(input_bytes: &[u8]) -> ExecutorResult<PublicValuesStruct> {
     } = input;
 
     let panic_storage = PanicStorage::default();
-    let storage =
-        StorageTransaction::transaction(panic_storage, ConflictPolicy::Fail, storage);
+    let storage = StorageTransaction::transaction(panic_storage, ConflictPolicy::Fail, storage);
 
     let validator = ExecutionInstance::new(
         relayer,
