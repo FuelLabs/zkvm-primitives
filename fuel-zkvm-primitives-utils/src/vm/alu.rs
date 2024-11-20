@@ -1,4 +1,5 @@
-use fuel_core_types::fuel_asm::{op, RegId};
+use fuel_core_types::fuel_asm::{op, Instruction, RegId};
+use fuel_core_types::fuel_asm::wideint::{CompareArgs, CompareMode};
 
 /// This file contains helpers to generate scripts with various alu operations in an infinite loop.
 /// Below is a checklist of what has been implemented and what hasn't
@@ -32,7 +33,7 @@ use fuel_core_types::fuel_asm::{op, RegId};
 // - [x] **SRLI**: Shift right logical immediate
 // - [x] **SUB**: Subtract
 // - [x] **SUBI**: Subtract immediate
-// - [ ] **WDCM**: 128-bit integer comparison
+// - [x] **WDCM**: 128-bit integer comparison
 // - [ ] **WQCM**: 256-bit integer comparison
 // - [ ] **WDOP**: Misc 128-bit integer operations
 // - [ ] **WQOP**: Misc 256-bit integer operations
@@ -353,3 +354,55 @@ pub fn srli() -> Vec<u8> {
     .into_iter()
     .collect()
 }
+
+/// Copied from https://github.com/FuelLabs/fuel-core/blob/4986d4d034499dafc19b9dcd72458717b6ecdd5b/benches/benches/utils.rs#L38-L57
+/// Allocates a byte array from heap and initializes it. Then points `reg` to it.
+fn alloc_bytearray<const S: usize>(reg: u8, v: [u8; S]) -> Vec<Instruction> {
+    let mut ops = vec![op::movi(reg, S as u32), op::aloc(reg)];
+    for (i, b) in v.iter().enumerate() {
+        if *b != 0 {
+            ops.push(op::movi(reg, *b as u32));
+            ops.push(op::sb(RegId::HP, reg, i as u16));
+        }
+    }
+    ops.push(op::move_(reg, RegId::HP));
+    ops
+}
+
+fn make_u128(reg: u8, v: u128) -> Vec<Instruction> {
+    alloc_bytearray(reg, v.to_be_bytes())
+}
+
+fn make_u256(reg: u8, v: ethnum::U256) -> Vec<Instruction> {
+    alloc_bytearray(reg, v.to_be_bytes())
+}
+
+fn prepared_default_wideint() -> Vec<Instruction> {
+    let mut wideint_prepare = Vec::new();
+    wideint_prepare.extend(make_u128(0x10, 0));
+    wideint_prepare.extend(make_u128(0x11, u128::MAX));
+    wideint_prepare.extend(make_u128(0x12, u128::MAX / 2 + 1));
+    wideint_prepare.extend(make_u128(0x13, u128::MAX - 158)); // prime
+    wideint_prepare.extend(make_u128(0x14, u64::MAX.into()));
+
+    wideint_prepare
+}
+
+pub fn wdcm() -> Vec<u8> {
+    let mut harness = prepared_default_wideint();
+    harness.extend(vec![
+        op::wdcm_args(
+            0x10,
+            0x12,
+            0x13,
+            CompareArgs {
+                mode: CompareMode::LTE,
+                indirect_rhs: true,
+            },
+        ),
+        op::jmpb(RegId::ZERO, 0),
+    ]);
+
+    harness.into_iter().collect()
+}
+

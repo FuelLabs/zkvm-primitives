@@ -33,6 +33,7 @@ pub enum Instruction {
     SRLI,
     SUB,
     SUBI,
+    WDCM,
 }
 
 impl Instruction {
@@ -68,6 +69,7 @@ impl Instruction {
             Instruction::SLLI => alu::slli(),
             Instruction::SRL => alu::srl(),
             Instruction::SRLI => alu::srli(),
+            Instruction::WDCM => alu::wdcm(),
         }
     }
 }

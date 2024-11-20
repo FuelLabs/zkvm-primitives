@@ -24,4 +24,4 @@ tempfile = "3.14.0"
 tokio = { workspace = true }
 tracing = { version = "0.1" }
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
-
+ethnum = "1.3"
