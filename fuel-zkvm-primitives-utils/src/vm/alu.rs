@@ -1,3 +1,4 @@
+use ethnum::U256;
 use fuel_core_types::fuel_asm::wideint::{
     CompareArgs, CompareMode, DivArgs, MathArgs, MathOp, MulArgs,
 };
@@ -36,21 +37,21 @@ use fuel_core_types::fuel_asm::{op, Instruction, RegId};
 // - [x] **SUB**: Subtract
 // - [x] **SUBI**: Subtract immediate
 // - [x] **WDCM**: 128-bit integer comparison
-// - [ ] **WQCM**: 256-bit integer comparison
+// - [x] **WQCM**: 256-bit integer comparison
 // - [x] **WDOP**: Misc 128-bit integer operations
-// - [ ] **WQOP**: Misc 256-bit integer operations
+// - [x] **WQOP**: Misc 256-bit integer operations
 // - [x] **WDML**: Multiply 128-bit integers
-// - [ ] **WQML**: Multiply 256-bit integers
+// - [x] **WQML**: Multiply 256-bit integers
 // - [x] **WDDV**: 128-bit integer division
-// - [ ] **WQDV**: 256-bit integer division
+// - [x] **WQDV**: 256-bit integer division
 // - [x] **WDMD**: 128-bit integer fused multiply-divide
-// - [ ] **WQMD**: 256-bit integer fused multiply-divide
+// - [x] **WQMD**: 256-bit integer fused multiply-divide
 // - [x] **WDAM**: Modular 128-bit integer addition
-// - [ ] **WQAM**: Modular 256-bit integer addition
+// - [x] **WQAM**: Modular 256-bit integer addition
 // - [x] **WDMM**: Modular 128-bit integer multiplication
-// - [ ] **WQMM**: Modular 256-bit integer multiplication
-// - [ ] **XOR**: XOR
-// - [ ] **XORI**: XOR immediate
+// - [x] **WQMM**: Modular 256-bit integer multiplication
+// - [x] **XOR**: XOR
+// - [x] **XORI**: XOR immediate
 
 pub fn add() -> Vec<u8> {
     [
@@ -482,4 +483,131 @@ pub fn wdmm() -> Vec<u8> {
     ]);
 
     harness.into_iter().collect()
+}
+
+fn prepared_wideint_u256() -> Vec<Instruction> {
+    let mut wideint_prepare = Vec::new();
+    wideint_prepare.extend(make_u256(0x10, U256::ZERO));
+    wideint_prepare.extend(make_u256(0x11, U256::MAX));
+    wideint_prepare.extend(make_u256(0x12, U256::MAX / 2 + 1));
+    wideint_prepare.extend(make_u256(0x13, U256::MAX - 188)); // prime
+    wideint_prepare.extend(make_u256(0x14, u128::MAX.into()));
+
+    wideint_prepare
+}
+
+pub fn wqcm() -> Vec<u8> {
+    let mut harness = prepared_wideint_u256();
+
+    harness.extend(vec![
+        op::wqcm_args(
+            0x10,
+            0x12,
+            0x13,
+            CompareArgs {
+                mode: CompareMode::LTE,
+                indirect_rhs: true,
+            },
+        ),
+        op::jmpb(RegId::ZERO, 0),
+    ]);
+
+    harness.into_iter().collect()
+}
+
+pub fn wqop() -> Vec<u8> {
+    let mut harness = prepared_wideint_u256();
+    harness.extend(vec![
+        op::wqop_args(
+            0x10,
+            0x13,
+            0x12,
+            MathArgs {
+                op: MathOp::SUB,
+                indirect_rhs: true,
+            },
+        ),
+        op::jmpb(RegId::ZERO, 0),
+    ]);
+
+    harness.into_iter().collect()
+}
+
+pub fn wqml() -> Vec<u8> {
+    let mut harness = prepared_wideint_u256();
+    harness.extend(vec![
+        op::wqml_args(
+            0x10,
+            0x14,
+            0x14,
+            MulArgs {
+                indirect_lhs: true,
+                indirect_rhs: true,
+            },
+        ),
+        op::jmpb(RegId::ZERO, 0),
+    ]);
+
+    harness.into_iter().collect()
+}
+
+pub fn wqdv() -> Vec<u8> {
+    let mut harness = prepared_wideint_u256();
+    harness.extend(vec![
+        op::wqdv_args(0x10, 0x12, 0x13, DivArgs { indirect_rhs: true }),
+        op::jmpb(RegId::ZERO, 0),
+    ]);
+
+    harness.into_iter().collect()
+}
+
+pub fn wqmd() -> Vec<u8> {
+    let mut harness = prepared_wideint_u256();
+    harness.extend(vec![
+        op::wqmd(0x10, 0x12, 0x13, 0x13),
+        op::jmpb(RegId::ZERO, 0),
+    ]);
+
+    harness.into_iter().collect()
+}
+
+pub fn wqam() -> Vec<u8> {
+    let mut harness = prepared_wideint_u256();
+    harness.extend(vec![
+        op::wqam(0x10, 0x12, 0x13, 0x13),
+        op::jmpb(RegId::ZERO, 0),
+    ]);
+
+    harness.into_iter().collect()
+}
+
+pub fn wqmm() -> Vec<u8> {
+    let mut harness = prepared_wideint_u256();
+    harness.extend(vec![
+        op::wqmm(0x10, 0x12, 0x13, 0x13),
+        op::jmpb(RegId::ZERO, 0),
+    ]);
+
+    harness.into_iter().collect()
+}
+
+pub fn xor() -> Vec<u8> {
+    [
+        op::movi(0x10, 1024),
+        op::movi(0x11, 123),
+        op::xor(0x12, 0x10, 0x11),
+        op::jmpb(RegId::ZERO, 0),
+    ]
+    .into_iter()
+    .collect()
+}
+
+pub fn xori() -> Vec<u8> {
+    [
+        op::movi(0x10, 1024),
+        op::xori(0x11, 0x10, 123),
+        op::jmpb(RegId::ZERO, 0),
+    ]
+    .into_iter()
+    .collect()
 }

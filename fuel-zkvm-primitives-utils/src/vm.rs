@@ -40,6 +40,15 @@ pub enum Instruction {
     WDMD,
     WDAM,
     WDMM,
+    WQCM,
+    WQOP,
+    WQML,
+    WQDV,
+    WQMD,
+    WQAM,
+    WQMM,
+    XOR,
+    XORI,
 }
 
 impl Instruction {
@@ -82,6 +91,15 @@ impl Instruction {
             Instruction::WDMD => alu::wdmd(),
             Instruction::WDAM => alu::wdam(),
             Instruction::WDMM => alu::wdmm(),
+            Instruction::WQCM => alu::wqcm(),
+            Instruction::WQOP => alu::wqop(),
+            Instruction::WQML => alu::wqml(),
+            Instruction::WQDV => alu::wqdv(),
+            Instruction::WQMD => alu::wqmd(),
+            Instruction::WQAM => alu::wqam(),
+            Instruction::WQMM => alu::wqmm(),
+            Instruction::XOR => alu::xor(),
+            Instruction::XORI => alu::xori(),
         }
     }
 }
