@@ -1,6 +1,6 @@
 use fuel_core_types::fuel_asm::{op, RegId};
 
-/// This file contains helpers to generate scripts with various alu operations.
+/// This file contains helpers to generate scripts with various alu operations in an infinite loop.
 /// Below is a checklist of what has been implemented and what hasn't
 // - [x] **ADD**: Add
 // - [x] **ADDI**: Add immediate
@@ -8,17 +8,17 @@ use fuel_core_types::fuel_asm::{op, RegId};
 // - [x] **ANDI**: AND immediate
 // - [x] **DIV**: Divide
 // - [x] **DIVI**: Divide immediate
-// - [ ] **EQ**: Equals
-// - [ ] **EXP**: Exponentiate
-// - [ ] **EXPI**: Exponentiate immediate
-// - [ ] **GT**: Greater than
-// - [ ] **LT**: Less than
-// - [ ] **MLOG**: Math logarithm
-// - [ ] **MOD**: Modulus
-// - [ ] **MODI**: Modulus immediate
-// - [ ] **MOVE**: Move
-// - [ ] **MOVI**: Move immediate
-// - [ ] **MROO**: Math root
+// - [x] **EQ**: Equals
+// - [x] **EXP**: Exponentiate
+// - [x] **EXPI**: Exponentiate immediate
+// - [x] **GT**: Greater than
+// - [x] **LT**: Less than
+// - [x] **MLOG**: Math logarithm
+// - [x] **MOD**: Modulus
+// - [x] **MODI**: Modulus immediate
+// - [x] **MOVE**: Move
+// - [x] **MOVI**: Move immediate
+// - [x] **MROO**: Math root
 // - [x] **MUL**: Multiply
 // - [x] **MULI**: Multiply immediate
 // - [ ] **MLDV**: Fused multiply-divide
@@ -112,27 +112,6 @@ pub fn subi() -> Vec<u8> {
     .collect()
 }
 
-pub fn mul() -> Vec<u8> {
-    [
-        op::movi(0x10, 1024),
-        op::movi(0x11, 3),
-        op::muli(0x12, 0x10, 0x11),
-        op::jmpb(RegId::ZERO, 0),
-    ]
-    .into_iter()
-    .collect()
-}
-
-pub fn muli() -> Vec<u8> {
-    [
-        op::movi(0x10, 1024),
-        op::muli(0x11, 0x10, 10),
-        op::jmpb(RegId::ZERO, 0),
-    ]
-    .into_iter()
-    .collect()
-}
-
 pub fn div() -> Vec<u8> {
     [
         op::movi(0x10, 1024),
@@ -148,6 +127,140 @@ pub fn divi() -> Vec<u8> {
     [
         op::movi(0x10, 1024),
         op::divi(0x11, 0x10, 4),
+        op::jmpb(RegId::ZERO, 0),
+    ]
+    .into_iter()
+    .collect()
+}
+
+pub fn eq() -> Vec<u8> {
+    [
+        op::movi(0x10, 1024),
+        op::movi(0x11, 1024),
+        op::eq(0x12, 0x10, 0x11),
+        op::jmpb(RegId::ZERO, 0),
+    ]
+    .into_iter()
+    .collect()
+}
+
+pub fn exp() -> Vec<u8> {
+    [
+        op::movi(0x10, 2),
+        op::movi(0x11, 10),
+        op::exp(0x12, 0x10, 0x11),
+        op::jmpb(RegId::ZERO, 0),
+    ]
+    .into_iter()
+    .collect()
+}
+
+pub fn expi() -> Vec<u8> {
+    [
+        op::movi(0x10, 2),
+        op::expi(0x11, 0x10, 10),
+        op::jmpb(RegId::ZERO, 0),
+    ]
+    .into_iter()
+    .collect()
+}
+
+pub fn gt() -> Vec<u8> {
+    [
+        op::movi(0x10, 1024),
+        op::movi(0x11, 123),
+        op::gt(0x12, 0x10, 0x11),
+        op::jmpb(RegId::ZERO, 0),
+    ]
+    .into_iter()
+    .collect()
+}
+
+pub fn lt() -> Vec<u8> {
+    [
+        op::movi(0x10, 1024),
+        op::movi(0x11, 123),
+        op::lt(0x12, 0x10, 0x11),
+        op::jmpb(RegId::ZERO, 0),
+    ]
+    .into_iter()
+    .collect()
+}
+
+pub fn mlog() -> Vec<u8> {
+    [
+        op::movi(0x10, 1024),
+        op::movi(0x11, 10),
+        op::mlog(0x12, 0x10, 0x11),
+        op::jmpb(RegId::ZERO, 0),
+    ]
+    .into_iter()
+    .collect()
+}
+
+pub fn mod_() -> Vec<u8> {
+    [
+        op::movi(0x10, 1024),
+        op::movi(0x11, 10),
+        op::mod_(0x12, 0x10, 0x11),
+        op::jmpb(RegId::ZERO, 0),
+    ]
+    .into_iter()
+    .collect()
+}
+
+pub fn modi() -> Vec<u8> {
+    [
+        op::movi(0x10, 1024),
+        op::modi(0x11, 0x10, 10),
+        op::jmpb(RegId::ZERO, 0),
+    ]
+    .into_iter()
+    .collect()
+}
+
+pub fn move_() -> Vec<u8> {
+    [
+        op::movi(0x10, 1024),
+        op::move_(0x11, 0x10),
+        op::jmpb(RegId::ZERO, 0),
+    ]
+    .into_iter()
+    .collect()
+}
+
+pub fn movi() -> Vec<u8> {
+    [op::movi(0x10, 1024), op::jmpb(RegId::ZERO, 0)]
+        .into_iter()
+        .collect()
+}
+
+pub fn mroo() -> Vec<u8> {
+    [
+        op::movi(0x10, 1024),
+        op::movi(0x11, 2),
+        op::mroo(0x12, 0x10, 0x11),
+        op::jmpb(RegId::ZERO, 0),
+    ]
+    .into_iter()
+    .collect()
+}
+
+pub fn mul() -> Vec<u8> {
+    [
+        op::movi(0x10, 1024),
+        op::movi(0x11, 3),
+        op::muli(0x12, 0x10, 0x11),
+        op::jmpb(RegId::ZERO, 0),
+    ]
+    .into_iter()
+    .collect()
+}
+
+pub fn muli() -> Vec<u8> {
+    [
+        op::movi(0x10, 1024),
+        op::muli(0x11, 0x10, 10),
         op::jmpb(RegId::ZERO, 0),
     ]
     .into_iter()
