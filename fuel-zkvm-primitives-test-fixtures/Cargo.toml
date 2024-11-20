@@ -1,5 +1,5 @@
 [package]
-name = "example"
+name = "fuel-zkvm-primitives-test-fixtures"
 version = "0.1.0"
 edition = "2021"
 
@@ -17,9 +17,9 @@ fuel-core-storage = { workspace = true }
 fuel-core-types = { workspace = true }
 fuels = "0.66.5"
 fuels-core = "0.66.9"
-input-provider = { path = "../input-provider" }
-prover = { path = "../prover" }
-utils = { path = "../utils" }
+fuel-zkvm-primitives-input-provider = { path = "../fuel-zkvm-primitives-input-provider" }
+fuel-zkvm-primitives-prover = { path = "../fuel-zkvm-primitives-prover" }
+fuel-zkvm-primitives-utils = { path = "../fuel-zkvm-primitives-utils" }
 serde_json = { version = "1", default-features = false }
 tempfile = "3.14.0"
 tokio = { workspace = true }

@@ -1,5 +1,5 @@
 [workspace]
-members = ["input-provider", "prover", "example", "utils"]
+members = ["fuel-zkvm-primitives-input-provider", "fuel-zkvm-primitives-prover", "fuel-zkvm-primitives-test-fixtures", "fuel-zkvm-primitives-utils"]
 resolver = "2"
 
 [workspace.dependencies]

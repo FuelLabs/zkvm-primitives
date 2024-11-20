@@ -1,5 +1,5 @@
 [package]
-name = "input-provider"
+name = "fuel-zkvm-primitives-input-provider"
 version = "0.1.0"
 edition = "2021"
 
@@ -11,8 +11,6 @@ fuel-core-executor = { workspace = true }
 fuel-core-relayer = { version = "0.40.0" }
 fuel-core-storage = { workspace = true }
 fuel-core-types = { workspace = true }
-prover = { path = "../prover" }
+fuel-zkvm-primitives-prover = { path = "../fuel-zkvm-primitives-prover" }
 tempfile = "3"
 tokio = { workspace = true }
-tracing = { version = "0.1" }
-tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }

@@ -9,18 +9,18 @@ use fuel_core_types::{
     fuel_crypto::SecretKey,
     fuel_tx::{Bytes32, ConsensusParameters},
 };
+use fuel_zkvm_primitives_input_provider::{
+    relayer_recorder::RelayerRecorder, storage_access_recorder::StorageAccessRecorder,
+};
 use fuels::{
     accounts::Account,
     prelude::{Provider, WalletUnlocked},
     types::BlockHeight,
 };
 use fuels_core::types::transaction_builders::{BuildableTransaction, ScriptTransactionBuilder};
-use input_provider::{
-    relayer_recorder::RelayerRecorder, storage_access_recorder::StorageAccessRecorder,
-};
 use std::{net::SocketAddr, path::Path};
 
-pub use utils::vm::Instruction;
+pub use fuel_zkvm_primitives_utils::vm::Instruction;
 
 const CONSENSUS_PARAMETERS: &[u8] = include_bytes!("fixtures/test_consensus_parameters.json");
 
@@ -54,7 +54,7 @@ async fn send_script_transaction(
 
 pub struct Service {
     pub fuel_node: FuelService,
-    pub input: prover::Input,
+    pub input: fuel_zkvm_primitives_prover::Input,
 }
 
 fn get_config(consensus_parameters: &mut ConsensusParameters, path: &Path) -> Config {
@@ -133,7 +133,7 @@ pub async fn start_node_with_transaction_and_produce_prover_input(
         .expect("Block with transaction is not available");
     let _ = validator.validate_without_commit(&block)?;
 
-    let input = prover::Input {
+    let input = fuel_zkvm_primitives_prover::Input {
         block,
         storage: storage.into_changes(),
         relayer: relayer.into_prover_relayer(),
@@ -145,7 +145,7 @@ pub async fn start_node_with_transaction_and_produce_prover_input(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use input_provider::logs::init_logging;
+    use fuel_zkvm_primitives_utils::logs::init_logging;
 
     #[tokio::test]
     async fn prover_can_verify() {
@@ -156,7 +156,7 @@ mod tests {
 
         let serialized_input = bincode::serialize(&service.input).unwrap();
 
-        let proof = prover::prove(&serialized_input).unwrap();
+        let proof = fuel_zkvm_primitives_prover::prove(&serialized_input).unwrap();
         let block_id: [u8; 32] = service.input.block.header().id().into();
         assert_eq!(proof.block_id.to_be_bytes(), block_id);
     }

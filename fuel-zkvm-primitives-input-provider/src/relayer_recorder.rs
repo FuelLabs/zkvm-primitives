@@ -7,7 +7,7 @@ use std::{cell::RefCell, sync::Arc};
 #[derive(Debug, Clone)]
 pub struct RelayerRecorder<S> {
     storage: S,
-    record: Arc<RefCell<prover::Relayer>>,
+    record: Arc<RefCell<fuel_zkvm_primitives_prover::Relayer>>,
 }
 
 impl<S> RelayerRecorder<S> {
@@ -18,7 +18,7 @@ impl<S> RelayerRecorder<S> {
         }
     }
 
-    pub fn into_prover_relayer(self) -> prover::Relayer {
+    pub fn into_prover_relayer(self) -> fuel_zkvm_primitives_prover::Relayer {
         self.record.borrow().clone()
     }
 }

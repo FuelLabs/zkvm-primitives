@@ -81,7 +81,7 @@ mod memory {
             panic!(
                 "The panic storage does not support reading. \
                 All data should be provided via the `Input` struct.\
-                If the execution hits this panic, it means that the prover \
+                If the execution hits this panic, it means that the fuel-zkvm-primitives-prover \
                 is not set up correctly. Or the execution is impossible."
             )
         }
