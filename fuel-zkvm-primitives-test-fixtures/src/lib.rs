@@ -142,22 +142,31 @@ pub async fn start_node_with_transaction_and_produce_prover_input(
     Ok(Service { fuel_node, input })
 }
 
+#[allow(non_snake_case)]
 #[cfg(test)]
 mod tests {
     use super::*;
     use fuel_zkvm_primitives_utils::logs::init_logging;
 
-    #[tokio::test]
-    async fn prover_can_verify() {
+    async fn basic_alu_test(instruction: Instruction) {
         init_logging();
-        let service = start_node_with_transaction_and_produce_prover_input(Instruction::ADD)
+
+        let service = start_node_with_transaction_and_produce_prover_input(instruction)
             .await
             .unwrap();
-
         let serialized_input = bincode::serialize(&service.input).unwrap();
-
         let proof = fuel_zkvm_primitives_prover::prove(&serialized_input).unwrap();
         let block_id: [u8; 32] = service.input.block.header().id().into();
-        assert_eq!(proof.block_id.to_be_bytes(), block_id);
+        assert_eq!(block_id, proof.block_id.to_be_bytes())
+    }
+
+    #[tokio::test]
+    async fn prover_can_verify__alu__add() {
+        basic_alu_test(Instruction::ADDI).await;
+    }
+
+    #[tokio::test]
+    async fn prover_can_verify__alu__mul() {
+        basic_alu_test(Instruction::MULI).await;
     }
 }
