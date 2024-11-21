@@ -44,8 +44,8 @@ mod tests {
         let service = generate_input_at_block_height(fuel_node, 1360410.into()).await?;
 
         // generate serialized input
-        let serialized_input = bincode::serialize(&service.input)?;
-        std::fs::write("fixtures/testnet_block/1360410.bin", &serialized_input)?;
+        let file = std::fs::File::create("fixtures/testnet_block/1360410.bin")?;
+        bincode::serialize_into(file, &service.input)?;
 
         Ok(service)
     }
