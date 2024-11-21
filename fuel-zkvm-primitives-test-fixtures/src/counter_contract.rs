@@ -31,13 +31,12 @@ mod tests {
         (instance, id.into())
     }
 
-
     async fn start_node_with_transaction_and_produce_prover_input() -> anyhow::Result<Service> {
         let (fuel_node, wallet) = start_node(Some(
             serde_json::from_slice::<ConsensusParameters>(COUNTER_CONTRACT_CONSENSUS_PARAMETERS)
                 .expect("Invalid JSON"),
         ))
-            .await;
+        .await;
 
         let (contract, _) = deploy(wallet.clone()).await;
 
