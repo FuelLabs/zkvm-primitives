@@ -1,5 +1,5 @@
 mod counter_contract;
-mod testnet_block;
+mod mainnet_blocks;
 mod utils;
 
 use crate::utils::{generate_input_at_block_height, start_node, Service};
