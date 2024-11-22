@@ -7,12 +7,13 @@ use fuels_core::types::transaction_builders::Blob;
 use std::sync::OnceLock;
 
 static BLOB_INSTANCE: OnceLock<Blob> = OnceLock::new();
+const BLOB_SIZE: usize = 1_000;
 
 // Global function to access the Blob
 fn get_blob_instance() -> &'static Blob {
     BLOB_INSTANCE.get_or_init(|| {
         let rng = &mut StdRng::seed_from_u64(2322u64);
-        let mut code = vec![0u8; 100000];
+        let mut code = vec![0u8; BLOB_SIZE];
         rng.fill_bytes(&mut code);
         Blob::new(code)
     })
@@ -50,7 +51,7 @@ fn bsiz() -> Vec<Instruction> {
 }
 
 fn bldd() -> Vec<Instruction> {
-    let mut prepared = set_full_word(0x12, 100000);
+    let mut prepared = set_full_word(0x12, BLOB_SIZE.try_into().unwrap());
     prepared.extend(vec![
         op::gtf_args(0x11, RegId::ZERO, GTFArgs::ScriptData),
         op::aloc(0x12),
