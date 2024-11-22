@@ -137,6 +137,7 @@ fn ed19() -> Vec<Instruction> {
         ),
         op::movi(0x10, 1000),
         op::cfe(0x10),
+        op::jmpb(RegId::ZERO, 0),
     ]
 }
 
@@ -147,6 +148,7 @@ fn k256() -> Vec<Instruction> {
         op::movi(0x10, 1000),
         op::cfe(0x10),
         op::k256(RegId::HP, RegId::ZERO, 0x10),
+        op::jmpb(RegId::ZERO, 0),
     ]
 }
 
@@ -157,5 +159,6 @@ fn s256() -> Vec<Instruction> {
         op::movi(0x10, 1000),
         op::cfe(0x10),
         op::s256(RegId::HP, RegId::ZERO, 0x10),
+        op::jmpb(RegId::ZERO, 0),
     ]
 }
