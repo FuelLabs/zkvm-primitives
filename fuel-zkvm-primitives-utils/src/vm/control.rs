@@ -1,4 +1,4 @@
-use crate::vm::base::AsRepr;
+use crate::vm::AsRepr;
 use fuel_core_types::fuel_asm::{op, RegId};
 
 #[derive(Debug)]

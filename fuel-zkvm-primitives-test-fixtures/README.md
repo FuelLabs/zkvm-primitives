@@ -5,7 +5,7 @@ Here we attempt to establish testing coverage over all opcodes and some example 
 ## Test Opcodes
 
 ```sh
-cargo test --lib tests
+cargo test --lib opcodes::tests
 ```
 
 ## Test Counter Contract
@@ -13,4 +13,10 @@ cargo test --lib tests
 ```shell
 forc build --path src/fixtures/counter_contract
 cargo test --lib counter_contract::tests
+```
+
+## Test Mainnet blocks
+
+```shell
+cargo test --lib mainnet_blocks::tests
 ```

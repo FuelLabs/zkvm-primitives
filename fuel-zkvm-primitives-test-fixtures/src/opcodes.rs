@@ -49,8 +49,10 @@ pub async fn start_node_with_transaction_and_produce_prover_input(
 mod tests {
     use super::*;
     use fuel_zkvm_primitives_utils::vm::alu::AluInstruction;
+    use fuel_zkvm_primitives_utils::vm::control::ControlInstruction;
+    use fuel_zkvm_primitives_utils::vm::memory::MemoryInstruction;
 
-    async fn basic_alu_test(instruction: Instruction) {
+    async fn basic_opcode_test(instruction: Instruction) {
         let service = start_node_with_transaction_and_produce_prover_input(instruction)
             .await
             .unwrap();
@@ -65,7 +67,29 @@ mod tests {
             paste::paste! {
                 #[tokio::test]
                 async fn [<test_alu_instruction_ $instruction:lower>]() {
-                    basic_alu_test(Instruction::ALU(AluInstruction::$instruction)).await;
+                    basic_opcode_test(Instruction::ALU(AluInstruction::$instruction)).await;
+                }
+            }
+        };
+    }
+
+    macro_rules! control_test {
+        ($instruction:ident) => {
+            paste::paste! {
+                #[tokio::test]
+                async fn [<test_ctrl_instruction_ $instruction:lower>]() {
+                    basic_opcode_test(Instruction::CTRL(ControlInstruction::$instruction)).await;
+                }
+            }
+        };
+    }
+
+    macro_rules! memory_test {
+        ($instruction:ident) => {
+            paste::paste! {
+                #[tokio::test]
+                async fn [<test_mem_instruction_ $instruction:lower>]() {
+                    basic_opcode_test(Instruction::MEM(MemoryInstruction::$instruction)).await;
                 }
             }
         };
@@ -119,4 +143,37 @@ mod tests {
     alu_test!(WQMM);
     alu_test!(XOR);
     alu_test!(XORI);
+
+    // Control Tests. Compare the number with control.rs
+    control_test!(JMP);
+    control_test!(JMPB);
+    control_test!(JMPF);
+    control_test!(JI);
+    control_test!(JNE);
+    control_test!(JNEB);
+    control_test!(JNEF);
+    control_test!(JNEI);
+    control_test!(JNZB);
+    control_test!(JNZF);
+    control_test!(JNZI);
+
+    // Memory Tests. Compare the number with memory.rs
+    memory_test!(ALOC);
+    memory_test!(CFE);
+    memory_test!(CFEI);
+    memory_test!(CFS);
+    memory_test!(CFSI);
+    memory_test!(LB);
+    memory_test!(LW);
+    // memory_test!(MCL); wip
+    // memory_test!(MCLI);
+    // memory_test!(MCP);
+    // memory_test!(MCPI);
+    // memory_test!(MEQ);
+    memory_test!(POPH);
+    memory_test!(POPL);
+    memory_test!(PSHH);
+    memory_test!(PSHL);
+    memory_test!(SB);
+    memory_test!(SW);
 }
