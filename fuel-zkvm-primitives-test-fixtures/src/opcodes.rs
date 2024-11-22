@@ -1,10 +1,16 @@
 #![allow(unused)]
 
 use crate::utils::{generate_input_at_block_height, start_node, Service};
+use fuel_core_storage::rand::prelude::StdRng;
+use fuel_core_storage::rand::{RngCore, SeedableRng};
+use fuel_core_storage::StorageAsRef;
 use fuel_zkvm_primitives_utils::vm::base::AsRepr;
+use fuel_zkvm_primitives_utils::vm::blob::BlobInstruction;
 pub use fuel_zkvm_primitives_utils::vm::Instruction;
 use fuels::{accounts::Account, prelude::WalletUnlocked, types::BlockHeight};
-use fuels_core::types::transaction_builders::{BuildableTransaction, ScriptTransactionBuilder};
+use fuels_core::types::transaction_builders::{
+    Blob, BlobTransactionBuilder, BuildableTransaction, ScriptTransactionBuilder,
+};
 
 async fn send_script_transaction(
     instruction: Instruction,
@@ -34,12 +40,38 @@ async fn send_script_transaction(
     Ok(inclusion_block_height)
 }
 
+async fn send_blob_transaction(
+    instruction: BlobInstruction,
+    wallet: WalletUnlocked,
+) -> anyhow::Result<BlockHeight> {
+    let blob = instruction.scaffold();
+
+    let mut builder = BlobTransactionBuilder::default().with_blob(blob);
+    wallet.adjust_for_fee(&mut builder, 0).await?;
+    wallet.add_witnesses(&mut builder)?;
+
+    let provider = wallet.provider().expect("No provider");
+
+    let tx = builder.build(&provider).await?;
+    provider
+        .send_transaction_and_await_commit(tx)
+        .await?
+        .check(None)?;
+
+    send_script_transaction(Instruction::BLOB(instruction), &wallet).await
+}
+
 /// We should move this to test-helpers once zkvm-perf doesn't have a dep on it
 pub async fn start_node_with_transaction_and_produce_prover_input(
     instruction: Instruction,
 ) -> anyhow::Result<Service> {
     let (fuel_node, wallet) = start_node(None).await;
-    let tx_inclusion_block_height = send_script_transaction(instruction, &wallet).await?;
+
+    let tx_inclusion_block_height = match instruction {
+        Instruction::BLOB(instruction) => send_blob_transaction(instruction, wallet).await?,
+        _ => send_script_transaction(instruction, &wallet).await?,
+    };
+
     let service = generate_input_at_block_height(fuel_node, tx_inclusion_block_height).await?;
     Ok(service)
 }

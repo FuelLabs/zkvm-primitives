@@ -1,11 +1,13 @@
 use crate::vm::alu::AluInstruction;
 use crate::vm::base::AsRepr;
+use crate::vm::blob::BlobInstruction;
 use crate::vm::control::ControlInstruction;
 use crate::vm::memory::MemoryInstruction;
 
 pub mod alu;
 
 pub mod base;
+pub mod blob;
 pub mod control;
 pub mod memory;
 
@@ -15,6 +17,7 @@ pub enum Instruction {
     ALU(AluInstruction),
     CTRL(ControlInstruction),
     MEM(MemoryInstruction),
+    BLOB(BlobInstruction),
 }
 
 impl AsRepr for Instruction {
@@ -23,6 +26,7 @@ impl AsRepr for Instruction {
             Instruction::ALU(alu) => alu.repr(),
             Instruction::CTRL(ctrl) => ctrl.repr(),
             Instruction::MEM(mem) => mem.repr(),
+            Instruction::BLOB(blob) => blob.repr(),
         }
     }
 }
