@@ -8,7 +8,7 @@ use fuel_zkvm_primitives_utils::vm::base::AsRepr;
 pub use fuel_zkvm_primitives_utils::vm::Instruction;
 pub use fuel_zkvm_primitives_utils::vm::{
     alu::AluInstruction, blob::BlobInstruction, control::ControlInstruction,
-    memory::MemoryInstruction,
+    memory::MemoryInstruction, crypto::CryptoInstruction
 };
 use fuels::{accounts::Account, prelude::WalletUnlocked, types::BlockHeight};
 use fuels_core::types::transaction_builders::{
