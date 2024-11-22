@@ -5,7 +5,12 @@ use fuel_core_storage::rand::prelude::StdRng;
 use fuel_core_storage::rand::{RngCore, SeedableRng};
 use fuel_core_storage::StorageAsRef;
 use fuel_zkvm_primitives_utils::vm::base::AsRepr;
-use fuel_zkvm_primitives_utils::vm::blob::BlobInstruction;
+pub use fuel_zkvm_primitives_utils::vm::{
+    blob::BlobInstruction,
+    alu::AluInstruction,
+    control::ControlInstruction,
+    memory::MemoryInstruction,
+};
 pub use fuel_zkvm_primitives_utils::vm::Instruction;
 use fuels::{accounts::Account, prelude::WalletUnlocked, types::BlockHeight};
 use fuels_core::types::transaction_builders::{
