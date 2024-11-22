@@ -177,7 +177,7 @@ fn cfsi() -> Vec<Instruction> {
     ]
 }
 
-fn set_full_word(r: RegisterId, v: Word) -> Vec<Instruction> {
+pub fn set_full_word(r: RegisterId, v: Word) -> Vec<Instruction> {
     let r = u8::try_from(r).unwrap();
     let mut ops = vec![op::movi(r, 0)];
     for byte in v.to_be_bytes() {

@@ -15,10 +15,16 @@ use fuels_core::types::transaction_builders::{
 async fn send_script_transaction(
     instruction: Instruction,
     wallet: &WalletUnlocked,
+    script_data: Option<Vec<u8>>,
 ) -> anyhow::Result<BlockHeight> {
     let script = instruction.repr();
 
     let mut builder = ScriptTransactionBuilder::default().with_script(script);
+
+    if let Some(script_data) = script_data {
+        builder = builder.with_script_data(script_data);
+    }
+
     wallet.add_witnesses(&mut builder)?;
     wallet.adjust_for_fee(&mut builder, 0).await?;
     let provider = wallet.provider().expect("No provider");
@@ -45,6 +51,7 @@ async fn send_blob_transaction(
     wallet: WalletUnlocked,
 ) -> anyhow::Result<BlockHeight> {
     let blob = instruction.scaffold();
+    let id = blob.id().to_vec();
 
     let mut builder = BlobTransactionBuilder::default().with_blob(blob);
     wallet.adjust_for_fee(&mut builder, 0).await?;
@@ -58,7 +65,7 @@ async fn send_blob_transaction(
         .await?
         .check(None)?;
 
-    send_script_transaction(Instruction::BLOB(instruction), &wallet).await
+    send_script_transaction(Instruction::BLOB(instruction), &wallet, Some(id)).await
 }
 
 /// We should move this to test-helpers once zkvm-perf doesn't have a dep on it
@@ -69,7 +76,7 @@ pub async fn start_node_with_transaction_and_produce_prover_input(
 
     let tx_inclusion_block_height = match instruction {
         Instruction::BLOB(instruction) => send_blob_transaction(instruction, wallet).await?,
-        _ => send_script_transaction(instruction, &wallet).await?,
+        _ => send_script_transaction(instruction, &wallet, None).await?,
     };
 
     let service = generate_input_at_block_height(fuel_node, tx_inclusion_block_height).await?;
@@ -81,6 +88,7 @@ pub async fn start_node_with_transaction_and_produce_prover_input(
 mod tests {
     use super::*;
     use fuel_zkvm_primitives_utils::vm::alu::AluInstruction;
+    use fuel_zkvm_primitives_utils::vm::blob::BlobInstruction;
     use fuel_zkvm_primitives_utils::vm::control::ControlInstruction;
     use fuel_zkvm_primitives_utils::vm::memory::MemoryInstruction;
 
@@ -122,6 +130,17 @@ mod tests {
                 #[tokio::test]
                 async fn [<test_mem_instruction_ $instruction:lower>]() {
                     basic_opcode_test(Instruction::MEM(MemoryInstruction::$instruction)).await;
+                }
+            }
+        };
+    }
+
+    macro_rules! blob_test {
+        ($instruction:ident) => {
+            paste::paste! {
+                #[tokio::test]
+                async fn [<test_blob_instruction_ $instruction:lower>]() {
+                    basic_opcode_test(Instruction::BLOB(BlobInstruction::$instruction)).await;
                 }
             }
         };
@@ -208,4 +227,8 @@ mod tests {
     memory_test!(PSHL);
     memory_test!(SB);
     memory_test!(SW);
+
+    // Blob Tests. Compare the number with blob.rs
+    blob_test!(BSIZ);
+    blob_test!(BLDD);
 }
