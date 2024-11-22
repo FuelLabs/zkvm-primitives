@@ -5,13 +5,11 @@ use fuel_core_storage::rand::prelude::StdRng;
 use fuel_core_storage::rand::{RngCore, SeedableRng};
 use fuel_core_storage::StorageAsRef;
 use fuel_zkvm_primitives_utils::vm::base::AsRepr;
+pub use fuel_zkvm_primitives_utils::vm::Instruction;
 pub use fuel_zkvm_primitives_utils::vm::{
-    blob::BlobInstruction,
-    alu::AluInstruction,
-    control::ControlInstruction,
+    alu::AluInstruction, blob::BlobInstruction, control::ControlInstruction,
     memory::MemoryInstruction,
 };
-pub use fuel_zkvm_primitives_utils::vm::Instruction;
 use fuels::{accounts::Account, prelude::WalletUnlocked, types::BlockHeight};
 use fuels_core::types::transaction_builders::{
     Blob, BlobTransactionBuilder, BuildableTransaction, ScriptTransactionBuilder,
@@ -81,6 +79,14 @@ pub async fn start_node_with_transaction_and_produce_prover_input(
 
     let tx_inclusion_block_height = match instruction {
         Instruction::BLOB(instruction) => send_blob_transaction(instruction, wallet).await?,
+        Instruction::CRYPTO(instruction) => {
+            send_script_transaction(
+                Instruction::CRYPTO(instruction),
+                &wallet,
+                Some(instruction.scaffold()),
+            )
+            .await?
+        }
         _ => send_script_transaction(instruction, &wallet, None).await?,
     };
 
@@ -95,6 +101,7 @@ mod tests {
     use fuel_zkvm_primitives_utils::vm::alu::AluInstruction;
     use fuel_zkvm_primitives_utils::vm::blob::BlobInstruction;
     use fuel_zkvm_primitives_utils::vm::control::ControlInstruction;
+    use fuel_zkvm_primitives_utils::vm::crypto::CryptoInstruction;
     use fuel_zkvm_primitives_utils::vm::memory::MemoryInstruction;
 
     async fn basic_opcode_test(instruction: Instruction) {
@@ -146,6 +153,17 @@ mod tests {
                 #[tokio::test]
                 async fn [<test_blob_instruction_ $instruction:lower>]() {
                     basic_opcode_test(Instruction::BLOB(BlobInstruction::$instruction)).await;
+                }
+            }
+        };
+    }
+
+    macro_rules! crypto_test {
+        ($instruction:ident) => {
+            paste::paste! {
+                #[tokio::test]
+                async fn [<test_crypto_instruction_ $instruction:lower>]() {
+                    basic_opcode_test(Instruction::CRYPTO(CryptoInstruction::$instruction)).await;
                 }
             }
         };
@@ -236,4 +254,11 @@ mod tests {
     // Blob Tests. Compare the number with blob.rs
     blob_test!(BSIZ);
     blob_test!(BLDD);
+
+    // Crypto Tests. Compare the number with crypto.rs
+    crypto_test!(ECK1);
+    crypto_test!(ECR1);
+    crypto_test!(ED19);
+    crypto_test!(K256);
+    crypto_test!(S256);
 }
