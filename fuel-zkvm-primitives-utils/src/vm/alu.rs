@@ -155,6 +155,10 @@ impl AsRepr for AluInstruction {
             AluInstruction::XORI => xori(),
         }
     }
+
+    fn script_data(&self) -> Option<Vec<u8>> {
+        None
+    }
 }
 
 fn add() -> Vec<u8> {

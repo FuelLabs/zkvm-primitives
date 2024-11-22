@@ -33,4 +33,14 @@ impl AsRepr for Instruction {
             Instruction::CRYPTO(crypto) => crypto.repr(),
         }
     }
+
+    fn script_data(&self) -> Option<Vec<u8>> {
+        match &self {
+            Instruction::ALU(alu) => alu.script_data(),
+            Instruction::CTRL(ctrl) => ctrl.script_data(),
+            Instruction::MEM(mem) => mem.script_data(),
+            Instruction::BLOB(blob) => blob.script_data(),
+            Instruction::CRYPTO(crypto) => crypto.script_data(),
+        }
+    }
 }

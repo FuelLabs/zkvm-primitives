@@ -6,20 +6,20 @@ use fuel_core_types::fuel_asm::{op, GTFArgs, Instruction, RegId};
 use fuels_core::types::transaction_builders::Blob;
 use std::sync::OnceLock;
 
-static BLOB_INSTANCE: OnceLock<Blob> = OnceLock::new();
+static BLOB_INSTANCE: OnceLock<Vec<u8>> = OnceLock::new();
 const BLOB_SIZE: usize = 1_000;
 
 // Global function to access the Blob
-fn get_blob_instance() -> &'static Blob {
+fn get_blob_instance() -> &'static Vec<u8> {
     BLOB_INSTANCE.get_or_init(|| {
         let rng = &mut StdRng::seed_from_u64(2322u64);
-        let mut code = vec![0u8; BLOB_SIZE];
-        rng.fill_bytes(&mut code);
-        Blob::new(code)
+        let mut blob_data = vec![0u8; BLOB_SIZE];
+        rng.fill_bytes(&mut blob_data);
+        blob_data
     })
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub enum BlobInstruction {
     BSIZ,
     BLDD,
@@ -34,10 +34,16 @@ impl AsRepr for BlobInstruction {
         .into_iter()
         .collect()
     }
+
+    fn script_data(&self) -> Option<Vec<u8>> {
+        let blob_data = get_blob_instance().clone();
+        let blob = Blob::new(blob_data);
+        Some(blob.id().to_vec())
+    }
 }
 
 impl BlobInstruction {
-    pub fn scaffold(&self) -> Blob {
+    pub fn blob_data(&self) -> Vec<u8> {
         get_blob_instance().clone()
     }
 }

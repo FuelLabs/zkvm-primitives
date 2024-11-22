@@ -77,16 +77,13 @@ impl AsRepr for CryptoInstruction {
         .into_iter()
         .collect()
     }
-}
 
-impl CryptoInstruction {
-    pub fn scaffold(&self) -> Vec<u8> {
+    fn script_data(&self) -> Option<Vec<u8>> {
         match &self {
-            CryptoInstruction::ECK1 => eck1_script_data().clone(),
-            CryptoInstruction::ECR1 => ecr1_script_data().clone(),
-            CryptoInstruction::ED19 => ed19_script_data().2.clone(),
-            CryptoInstruction::K256 => vec![],
-            CryptoInstruction::S256 => vec![],
+            CryptoInstruction::ECK1 => Some(eck1_script_data().clone()),
+            CryptoInstruction::ECR1 => Some(ecr1_script_data().clone()),
+            CryptoInstruction::ED19 => Some(ed19_script_data().2.clone()),
+            _ => None,
         }
     }
 }

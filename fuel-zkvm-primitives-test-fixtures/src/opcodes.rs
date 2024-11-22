@@ -18,9 +18,9 @@ use fuels_core::types::transaction_builders::{
 async fn send_script_transaction(
     instruction: Instruction,
     wallet: &WalletUnlocked,
-    script_data: Option<Vec<u8>>,
 ) -> anyhow::Result<BlockHeight> {
     let script = instruction.repr();
+    let script_data = instruction.script_data();
 
     let mut builder = ScriptTransactionBuilder::default().with_script(script);
 
@@ -53,8 +53,9 @@ async fn send_blob_transaction(
     instruction: BlobInstruction,
     wallet: WalletUnlocked,
 ) -> anyhow::Result<BlockHeight> {
-    let blob = instruction.scaffold();
-    let id = blob.id().to_vec();
+    let blob_data = instruction.blob_data();
+
+    let blob = Blob::new(blob_data);
 
     let mut builder = BlobTransactionBuilder::default().with_blob(blob);
     wallet.adjust_for_fee(&mut builder, 0).await?;
@@ -68,7 +69,7 @@ async fn send_blob_transaction(
         .await?
         .check(None)?;
 
-    send_script_transaction(Instruction::BLOB(instruction), &wallet, Some(id)).await
+    send_script_transaction(Instruction::BLOB(instruction), &wallet).await
 }
 
 /// We should move this to test-helpers once zkvm-perf doesn't have a dep on it
@@ -79,15 +80,7 @@ pub async fn start_node_with_transaction_and_produce_prover_input(
 
     let tx_inclusion_block_height = match instruction {
         Instruction::BLOB(instruction) => send_blob_transaction(instruction, wallet).await?,
-        Instruction::CRYPTO(instruction) => {
-            send_script_transaction(
-                Instruction::CRYPTO(instruction),
-                &wallet,
-                Some(instruction.scaffold()),
-            )
-            .await?
-        }
-        _ => send_script_transaction(instruction, &wallet, None).await?,
+        _ => send_script_transaction(instruction, &wallet).await?,
     };
 
     let service = generate_input_at_block_height(fuel_node, tx_inclusion_block_height).await?;
