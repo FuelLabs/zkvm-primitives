@@ -165,11 +165,11 @@ mod tests {
     memory_test!(CFSI);
     memory_test!(LB);
     memory_test!(LW);
-    // memory_test!(MCL); wip
-    // memory_test!(MCLI);
-    // memory_test!(MCP);
-    // memory_test!(MCPI);
-    // memory_test!(MEQ);
+    memory_test!(MCL);
+    memory_test!(MCLI);
+    memory_test!(MCP);
+    memory_test!(MCPI);
+    memory_test!(MEQ);
     memory_test!(POPH);
     memory_test!(POPL);
     memory_test!(PSHH);

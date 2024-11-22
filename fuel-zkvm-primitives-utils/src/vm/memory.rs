@@ -1,5 +1,9 @@
 use crate::vm::AsRepr;
 use fuel_core_types::fuel_asm::{op, Instruction, RegId};
+use fuel_core_types::fuel_tx::Word;
+use fuel_core_types::fuel_types::RegisterId;
+
+// all fixtures obtained from https://github.com/FuelLabs/fuel-core/blob/62766787f9e24f9e581dcaada9dfa982355ea89f/benches/benches/block_target_gas_set/memory.rs
 
 #[allow(clippy::upper_case_acronyms)]
 #[derive(Debug)]
@@ -38,11 +42,35 @@ impl AsRepr for MemoryInstruction {
             MemoryInstruction::CFSI => cfsi(),
             MemoryInstruction::LB => vec![op::lb(0x10, RegId::ONE, 10), op::jmpb(RegId::ZERO, 0)],
             MemoryInstruction::LW => vec![op::lw(0x10, RegId::ONE, 10), op::jmpb(RegId::ZERO, 0)],
-            MemoryInstruction::MCL => todo!(),
-            MemoryInstruction::MCLI => todo!(),
-            MemoryInstruction::MCP => todo!(),
-            MemoryInstruction::MCPI => todo!(),
-            MemoryInstruction::MEQ => todo!(),
+            MemoryInstruction::MCL => vec![
+                op::movi(0x11, 100000),
+                op::aloc(0x11),
+                op::move_(0x10, RegId::HP),
+                op::mcl(0x10, 0x11),
+                op::jmpb(RegId::ZERO, 0),
+            ],
+            MemoryInstruction::MCLI => vec![
+                op::movi(0x11, 100000),
+                op::aloc(0x11),
+                op::move_(0x10, RegId::HP),
+                op::mcli(0x10, 100000),
+                op::jmpb(RegId::ZERO, 0),
+            ],
+            MemoryInstruction::MCP => vec![
+                op::movi(0x11, 100000),
+                op::aloc(0x11),
+                op::move_(0x10, RegId::HP),
+                op::mcp(0x10, RegId::ZERO, 0x11),
+                op::jmpb(RegId::ZERO, 0),
+            ],
+            MemoryInstruction::MCPI => vec![
+                op::movi(0x11, 1000),
+                op::aloc(0x11),
+                op::move_(0x10, RegId::HP),
+                op::mcpi(0x10, RegId::ZERO, 1000),
+                op::jmpb(RegId::ZERO, 0),
+            ],
+            MemoryInstruction::MEQ => meq(),
             MemoryInstruction::POPH => vec![
                 op::pshh(U32_MASK),
                 op::poph(U32_MASK),
@@ -147,4 +175,24 @@ fn cfsi() -> Vec<Instruction> {
         op::cfsi(10),
         op::jmpb(RegId::ZERO, 10),
     ]
+}
+
+fn set_full_word(r: RegisterId, v: Word) -> Vec<Instruction> {
+    let r = u8::try_from(r).unwrap();
+    let mut ops = vec![op::movi(r, 0)];
+    for byte in v.to_be_bytes() {
+        ops.push(op::ori(r, r, byte as u16));
+        ops.push(op::slli(r, r, 8));
+    }
+    ops.pop().unwrap(); // Remove last shift
+    ops
+}
+
+fn meq() -> Vec<Instruction> {
+    let mut prepared = set_full_word(0x13, 100000);
+    prepared.extend(vec![
+        op::meq(0x10, RegId::ZERO, RegId::ZERO, 0x13),
+        op::jmpb(RegId::ZERO, 0),
+    ]);
+    prepared
 }
