@@ -1,3 +1,4 @@
+use crate::vm::base::AsRepr;
 use ethnum::U256;
 use fuel_core_types::fuel_asm::wideint::{
     CompareArgs, CompareMode, DivArgs, MathArgs, MathOp, MulArgs,
@@ -53,7 +54,110 @@ use fuel_core_types::fuel_asm::{op, Instruction, RegId};
 // - [x] **XOR**: XOR
 // - [x] **XORI**: XOR immediate
 
-pub fn add() -> Vec<u8> {
+#[derive(Debug)]
+pub enum AluInstruction {
+    ADD,
+    ADDI,
+    AND,
+    ANDI,
+    DIV,
+    DIVI,
+    EQ,
+    EXP,
+    EXPI,
+    GT,
+    LT,
+    MLOG,
+    MOD,
+    MODI,
+    MOVE,
+    MOVI,
+    MROO,
+    MUL,
+    MULI,
+    MLDV,
+    NOOP,
+    NOT,
+    OR,
+    ORI,
+    SLL,
+    SLLI,
+    SRL,
+    SRLI,
+    SUB,
+    SUBI,
+    WDCM,
+    WDOP,
+    WDML,
+    WDDV,
+    WDMD,
+    WDAM,
+    WDMM,
+    WQCM,
+    WQOP,
+    WQML,
+    WQDV,
+    WQMD,
+    WQAM,
+    WQMM,
+    XOR,
+    XORI,
+}
+
+impl AsRepr for AluInstruction {
+    fn repr(&self) -> Vec<u8> {
+        match &self {
+            AluInstruction::ADD => add(),
+            AluInstruction::ADDI => addi(),
+            AluInstruction::AND => and(),
+            AluInstruction::ANDI => andi(),
+            AluInstruction::DIV => div(),
+            AluInstruction::DIVI => divi(),
+            AluInstruction::EQ => eq(),
+            AluInstruction::EXP => exp(),
+            AluInstruction::EXPI => expi(),
+            AluInstruction::GT => gt(),
+            AluInstruction::LT => lt(),
+            AluInstruction::MLOG => mlog(),
+            AluInstruction::MOD => mod_(),
+            AluInstruction::MODI => modi(),
+            AluInstruction::MOVE => move_(),
+            AluInstruction::MOVI => movi(),
+            AluInstruction::MROO => mroo(),
+            AluInstruction::MUL => mul(),
+            AluInstruction::MULI => muli(),
+            AluInstruction::SUB => sub(),
+            AluInstruction::SUBI => subi(),
+            AluInstruction::MLDV => mldv(),
+            AluInstruction::NOOP => noop(),
+            AluInstruction::NOT => not(),
+            AluInstruction::OR => or(),
+            AluInstruction::ORI => ori(),
+            AluInstruction::SLL => sll(),
+            AluInstruction::SLLI => slli(),
+            AluInstruction::SRL => srl(),
+            AluInstruction::SRLI => srli(),
+            AluInstruction::WDCM => wdcm(),
+            AluInstruction::WDOP => wdop(),
+            AluInstruction::WDML => wdml(),
+            AluInstruction::WDDV => wddv(),
+            AluInstruction::WDMD => wdmd(),
+            AluInstruction::WDAM => wdam(),
+            AluInstruction::WDMM => wdmm(),
+            AluInstruction::WQCM => wqcm(),
+            AluInstruction::WQOP => wqop(),
+            AluInstruction::WQML => wqml(),
+            AluInstruction::WQDV => wqdv(),
+            AluInstruction::WQMD => wqmd(),
+            AluInstruction::WQAM => wqam(),
+            AluInstruction::WQMM => wqmm(),
+            AluInstruction::XOR => xor(),
+            AluInstruction::XORI => xori(),
+        }
+    }
+}
+
+fn add() -> Vec<u8> {
     [
         op::movi(0x10, 1024),
         op::movi(0x11, 123),
@@ -64,7 +168,7 @@ pub fn add() -> Vec<u8> {
     .collect()
 }
 
-pub fn addi() -> Vec<u8> {
+fn addi() -> Vec<u8> {
     [
         op::movi(0x10, 1024),
         op::addi(0x11, 0x10, 1024),
@@ -74,7 +178,7 @@ pub fn addi() -> Vec<u8> {
     .collect()
 }
 
-pub fn and() -> Vec<u8> {
+fn and() -> Vec<u8> {
     [
         op::movi(0x10, 1024),
         op::movi(0x11, 123),
@@ -85,7 +189,7 @@ pub fn and() -> Vec<u8> {
     .collect()
 }
 
-pub fn andi() -> Vec<u8> {
+fn andi() -> Vec<u8> {
     [
         op::movi(0x10, 1024),
         op::andi(0x11, 0x10, 123),
@@ -95,7 +199,7 @@ pub fn andi() -> Vec<u8> {
     .collect()
 }
 
-pub fn sub() -> Vec<u8> {
+fn sub() -> Vec<u8> {
     [
         op::movi(0x10, 1024),
         op::movi(0x11, 123),
@@ -106,7 +210,7 @@ pub fn sub() -> Vec<u8> {
     .collect()
 }
 
-pub fn subi() -> Vec<u8> {
+fn subi() -> Vec<u8> {
     [
         op::movi(0x10, 1024),
         op::subi(0x11, 0x10, 10),
@@ -116,7 +220,7 @@ pub fn subi() -> Vec<u8> {
     .collect()
 }
 
-pub fn div() -> Vec<u8> {
+fn div() -> Vec<u8> {
     [
         op::movi(0x10, 1024),
         op::movi(0x11, 4),
@@ -127,7 +231,7 @@ pub fn div() -> Vec<u8> {
     .collect()
 }
 
-pub fn divi() -> Vec<u8> {
+fn divi() -> Vec<u8> {
     [
         op::movi(0x10, 1024),
         op::divi(0x11, 0x10, 4),
@@ -137,7 +241,7 @@ pub fn divi() -> Vec<u8> {
     .collect()
 }
 
-pub fn eq() -> Vec<u8> {
+fn eq() -> Vec<u8> {
     [
         op::movi(0x10, 1024),
         op::movi(0x11, 1024),
@@ -148,7 +252,7 @@ pub fn eq() -> Vec<u8> {
     .collect()
 }
 
-pub fn exp() -> Vec<u8> {
+fn exp() -> Vec<u8> {
     [
         op::movi(0x10, 2),
         op::movi(0x11, 10),
@@ -159,7 +263,7 @@ pub fn exp() -> Vec<u8> {
     .collect()
 }
 
-pub fn expi() -> Vec<u8> {
+fn expi() -> Vec<u8> {
     [
         op::movi(0x10, 2),
         op::expi(0x11, 0x10, 10),
@@ -169,7 +273,7 @@ pub fn expi() -> Vec<u8> {
     .collect()
 }
 
-pub fn gt() -> Vec<u8> {
+fn gt() -> Vec<u8> {
     [
         op::movi(0x10, 1024),
         op::movi(0x11, 123),
@@ -180,7 +284,7 @@ pub fn gt() -> Vec<u8> {
     .collect()
 }
 
-pub fn lt() -> Vec<u8> {
+fn lt() -> Vec<u8> {
     [
         op::movi(0x10, 1024),
         op::movi(0x11, 123),
@@ -191,7 +295,7 @@ pub fn lt() -> Vec<u8> {
     .collect()
 }
 
-pub fn mlog() -> Vec<u8> {
+fn mlog() -> Vec<u8> {
     [
         op::movi(0x10, 1024),
         op::movi(0x11, 10),
@@ -202,7 +306,7 @@ pub fn mlog() -> Vec<u8> {
     .collect()
 }
 
-pub fn mod_() -> Vec<u8> {
+fn mod_() -> Vec<u8> {
     [
         op::movi(0x10, 1024),
         op::movi(0x11, 10),
@@ -213,7 +317,7 @@ pub fn mod_() -> Vec<u8> {
     .collect()
 }
 
-pub fn modi() -> Vec<u8> {
+fn modi() -> Vec<u8> {
     [
         op::movi(0x10, 1024),
         op::modi(0x11, 0x10, 10),
@@ -223,7 +327,7 @@ pub fn modi() -> Vec<u8> {
     .collect()
 }
 
-pub fn move_() -> Vec<u8> {
+fn move_() -> Vec<u8> {
     [
         op::movi(0x10, 1024),
         op::move_(0x11, 0x10),
@@ -233,13 +337,13 @@ pub fn move_() -> Vec<u8> {
     .collect()
 }
 
-pub fn movi() -> Vec<u8> {
+fn movi() -> Vec<u8> {
     [op::movi(0x10, 1024), op::jmpb(RegId::ZERO, 0)]
         .into_iter()
         .collect()
 }
 
-pub fn mroo() -> Vec<u8> {
+fn mroo() -> Vec<u8> {
     [
         op::movi(0x10, 1024),
         op::movi(0x11, 2),
@@ -250,7 +354,7 @@ pub fn mroo() -> Vec<u8> {
     .collect()
 }
 
-pub fn mul() -> Vec<u8> {
+fn mul() -> Vec<u8> {
     [
         op::movi(0x10, 1024),
         op::movi(0x11, 3),
@@ -261,7 +365,7 @@ pub fn mul() -> Vec<u8> {
     .collect()
 }
 
-pub fn muli() -> Vec<u8> {
+fn muli() -> Vec<u8> {
     [
         op::movi(0x10, 1024),
         op::muli(0x11, 0x10, 10),
@@ -271,7 +375,7 @@ pub fn muli() -> Vec<u8> {
     .collect()
 }
 
-pub fn mldv() -> Vec<u8> {
+fn mldv() -> Vec<u8> {
     [
         op::movi(0x10, 1024),
         op::movi(0x11, 5),
@@ -283,11 +387,11 @@ pub fn mldv() -> Vec<u8> {
     .collect()
 }
 
-pub fn noop() -> Vec<u8> {
+fn noop() -> Vec<u8> {
     [op::noop(), op::jmpb(RegId::ZERO, 0)].into_iter().collect()
 }
 
-pub fn not() -> Vec<u8> {
+fn not() -> Vec<u8> {
     [
         op::movi(0x10, 1024),
         op::not(0x11, 0x10),
@@ -297,7 +401,7 @@ pub fn not() -> Vec<u8> {
     .collect()
 }
 
-pub fn or() -> Vec<u8> {
+fn or() -> Vec<u8> {
     [
         op::movi(0x10, 1024),
         op::movi(0x11, 123),
@@ -308,7 +412,7 @@ pub fn or() -> Vec<u8> {
     .collect()
 }
 
-pub fn ori() -> Vec<u8> {
+fn ori() -> Vec<u8> {
     [
         op::movi(0x10, 1024),
         op::ori(0x11, 0x10, 123),
@@ -318,7 +422,7 @@ pub fn ori() -> Vec<u8> {
     .collect()
 }
 
-pub fn sll() -> Vec<u8> {
+fn sll() -> Vec<u8> {
     [
         op::movi(0x10, 1024),
         op::sll(0x11, 0x10, 2),
@@ -328,7 +432,7 @@ pub fn sll() -> Vec<u8> {
     .collect()
 }
 
-pub fn slli() -> Vec<u8> {
+fn slli() -> Vec<u8> {
     [
         op::movi(0x10, 1024),
         op::slli(0x11, 0x10, 2),
@@ -338,7 +442,7 @@ pub fn slli() -> Vec<u8> {
     .collect()
 }
 
-pub fn srl() -> Vec<u8> {
+fn srl() -> Vec<u8> {
     [
         op::movi(0x10, 1024),
         op::srl(0x11, 0x10, 2),
@@ -348,7 +452,7 @@ pub fn srl() -> Vec<u8> {
     .collect()
 }
 
-pub fn srli() -> Vec<u8> {
+fn srli() -> Vec<u8> {
     [
         op::movi(0x10, 1024),
         op::srli(0x11, 0x10, 2),
@@ -391,7 +495,7 @@ fn prepared_wideint_u128() -> Vec<Instruction> {
     wideint_prepare
 }
 
-pub fn wdcm() -> Vec<u8> {
+fn wdcm() -> Vec<u8> {
     let mut harness = prepared_wideint_u128();
     harness.extend(vec![
         op::wdcm_args(
@@ -409,7 +513,7 @@ pub fn wdcm() -> Vec<u8> {
     harness.into_iter().collect()
 }
 
-pub fn wdop() -> Vec<u8> {
+fn wdop() -> Vec<u8> {
     let mut harness = prepared_wideint_u128();
     harness.extend(vec![
         op::wdop_args(
@@ -427,7 +531,7 @@ pub fn wdop() -> Vec<u8> {
     harness.into_iter().collect()
 }
 
-pub fn wdml() -> Vec<u8> {
+fn wdml() -> Vec<u8> {
     let mut harness = prepared_wideint_u128();
     harness.extend(vec![
         op::wdml_args(
@@ -445,7 +549,7 @@ pub fn wdml() -> Vec<u8> {
     harness.into_iter().collect()
 }
 
-pub fn wddv() -> Vec<u8> {
+fn wddv() -> Vec<u8> {
     let mut harness = prepared_wideint_u128();
     harness.extend(vec![
         op::wddv_args(0x10, 0x12, 0x13, DivArgs { indirect_rhs: true }),
@@ -455,7 +559,7 @@ pub fn wddv() -> Vec<u8> {
     harness.into_iter().collect()
 }
 
-pub fn wdmd() -> Vec<u8> {
+fn wdmd() -> Vec<u8> {
     let mut harness = prepared_wideint_u128();
     harness.extend(vec![
         op::wdmd(0x10, 0x12, 0x13, 0x13),
@@ -465,7 +569,7 @@ pub fn wdmd() -> Vec<u8> {
     harness.into_iter().collect()
 }
 
-pub fn wdam() -> Vec<u8> {
+fn wdam() -> Vec<u8> {
     let mut harness = prepared_wideint_u128();
     harness.extend(vec![
         op::wdam(0x10, 0x12, 0x13, 0x13),
@@ -475,7 +579,7 @@ pub fn wdam() -> Vec<u8> {
     harness.into_iter().collect()
 }
 
-pub fn wdmm() -> Vec<u8> {
+fn wdmm() -> Vec<u8> {
     let mut harness = prepared_wideint_u128();
     harness.extend(vec![
         op::wdmm(0x10, 0x12, 0x13, 0x13),
@@ -496,7 +600,7 @@ fn prepared_wideint_u256() -> Vec<Instruction> {
     wideint_prepare
 }
 
-pub fn wqcm() -> Vec<u8> {
+fn wqcm() -> Vec<u8> {
     let mut harness = prepared_wideint_u256();
 
     harness.extend(vec![
@@ -515,7 +619,7 @@ pub fn wqcm() -> Vec<u8> {
     harness.into_iter().collect()
 }
 
-pub fn wqop() -> Vec<u8> {
+fn wqop() -> Vec<u8> {
     let mut harness = prepared_wideint_u256();
     harness.extend(vec![
         op::wqop_args(
@@ -533,7 +637,7 @@ pub fn wqop() -> Vec<u8> {
     harness.into_iter().collect()
 }
 
-pub fn wqml() -> Vec<u8> {
+fn wqml() -> Vec<u8> {
     let mut harness = prepared_wideint_u256();
     harness.extend(vec![
         op::wqml_args(
@@ -551,7 +655,7 @@ pub fn wqml() -> Vec<u8> {
     harness.into_iter().collect()
 }
 
-pub fn wqdv() -> Vec<u8> {
+fn wqdv() -> Vec<u8> {
     let mut harness = prepared_wideint_u256();
     harness.extend(vec![
         op::wqdv_args(0x10, 0x12, 0x13, DivArgs { indirect_rhs: true }),
@@ -561,7 +665,7 @@ pub fn wqdv() -> Vec<u8> {
     harness.into_iter().collect()
 }
 
-pub fn wqmd() -> Vec<u8> {
+fn wqmd() -> Vec<u8> {
     let mut harness = prepared_wideint_u256();
     harness.extend(vec![
         op::wqmd(0x10, 0x12, 0x13, 0x13),
@@ -571,7 +675,7 @@ pub fn wqmd() -> Vec<u8> {
     harness.into_iter().collect()
 }
 
-pub fn wqam() -> Vec<u8> {
+fn wqam() -> Vec<u8> {
     let mut harness = prepared_wideint_u256();
     harness.extend(vec![
         op::wqam(0x10, 0x12, 0x13, 0x13),
@@ -581,7 +685,7 @@ pub fn wqam() -> Vec<u8> {
     harness.into_iter().collect()
 }
 
-pub fn wqmm() -> Vec<u8> {
+fn wqmm() -> Vec<u8> {
     let mut harness = prepared_wideint_u256();
     harness.extend(vec![
         op::wqmm(0x10, 0x12, 0x13, 0x13),
@@ -591,7 +695,7 @@ pub fn wqmm() -> Vec<u8> {
     harness.into_iter().collect()
 }
 
-pub fn xor() -> Vec<u8> {
+fn xor() -> Vec<u8> {
     [
         op::movi(0x10, 1024),
         op::movi(0x11, 123),
@@ -602,7 +706,7 @@ pub fn xor() -> Vec<u8> {
     .collect()
 }
 
-pub fn xori() -> Vec<u8> {
+fn xori() -> Vec<u8> {
     [
         op::movi(0x10, 1024),
         op::xori(0x11, 0x10, 123),

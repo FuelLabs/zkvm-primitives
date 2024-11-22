@@ -1,6 +1,7 @@
 #![allow(unused)]
 
 use crate::utils::{generate_input_at_block_height, start_node, Service};
+use fuel_zkvm_primitives_utils::vm::base::AsRepr;
 pub use fuel_zkvm_primitives_utils::vm::Instruction;
 use fuels::{accounts::Account, prelude::WalletUnlocked, types::BlockHeight};
 use fuels_core::types::transaction_builders::{BuildableTransaction, ScriptTransactionBuilder};
@@ -47,6 +48,7 @@ pub async fn start_node_with_transaction_and_produce_prover_input(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use fuel_zkvm_primitives_utils::vm::alu::AluInstruction;
 
     async fn basic_alu_test(instruction: Instruction) {
         let service = start_node_with_transaction_and_produce_prover_input(instruction)
@@ -63,7 +65,7 @@ mod tests {
             paste::paste! {
                 #[tokio::test]
                 async fn [<test_alu_instruction_ $instruction:lower>]() {
-                    basic_alu_test(Instruction::$instruction).await;
+                    basic_alu_test(Instruction::ALU(AluInstruction::$instruction)).await;
                 }
             }
         };
