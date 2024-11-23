@@ -31,7 +31,7 @@ fn gm_metadata() -> &'static (ContractId, AssetId, Vec<u8>, Vec<u8>) {
 }
 
 #[allow(clippy::upper_case_acronyms)]
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum OtherInstruction {
     FLAG,
     GTF,

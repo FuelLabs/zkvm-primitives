@@ -15,7 +15,7 @@ pub mod memory;
 pub mod other;
 
 // Implemented instructions for the VM
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Instruction {
     ALU(AluInstruction),
     CTRL(ControlInstruction),

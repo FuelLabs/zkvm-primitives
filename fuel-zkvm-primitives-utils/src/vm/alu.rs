@@ -54,7 +54,7 @@ use fuel_core_types::fuel_asm::{op, Instruction, RegId};
 // - [x] **XOR**: XOR
 // - [x] **XORI**: XOR immediate
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum AluInstruction {
     ADD,
     ADDI,

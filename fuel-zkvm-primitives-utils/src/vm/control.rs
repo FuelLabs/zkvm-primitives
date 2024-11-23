@@ -1,7 +1,7 @@
 use crate::vm::AsRepr;
 use fuel_core_types::fuel_asm::{op, RegId};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ControlInstruction {
     JMP,
     JI,

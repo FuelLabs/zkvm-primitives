@@ -6,7 +6,7 @@ use fuel_core_types::fuel_types::RegisterId;
 // all fixtures obtained from https://github.com/FuelLabs/fuel-core/blob/62766787f9e24f9e581dcaada9dfa982355ea89f/benches/benches/block_target_gas_set/memory.rs
 
 #[allow(clippy::upper_case_acronyms)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum MemoryInstruction {
     ALOC,
     CFE,
