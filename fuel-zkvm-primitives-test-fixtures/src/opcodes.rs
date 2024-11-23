@@ -8,8 +8,9 @@ use fuel_zkvm_primitives_utils::vm::base::AsRepr;
 pub use fuel_zkvm_primitives_utils::vm::Instruction;
 pub use fuel_zkvm_primitives_utils::vm::{
     alu::AluInstruction, blob::BlobInstruction, control::ControlInstruction,
-    memory::MemoryInstruction, crypto::CryptoInstruction
+    crypto::CryptoInstruction, memory::MemoryInstruction, other::OtherInstruction,
 };
+use fuels::prelude::Contract;
 use fuels::{accounts::Account, prelude::WalletUnlocked, types::BlockHeight};
 use fuels_core::types::transaction_builders::{
     Blob, BlobTransactionBuilder, BuildableTransaction, ScriptTransactionBuilder,
@@ -72,6 +73,21 @@ async fn send_blob_transaction(
     send_script_transaction(Instruction::BLOB(instruction), &wallet).await
 }
 
+async fn send_gm_instruction(
+    instruction: OtherInstruction,
+    wallet: WalletUnlocked,
+) -> anyhow::Result<BlockHeight> {
+    let contract_code = instruction.scaffold();
+
+    let mut builder = Contract::regular(contract_code, Default::default(), Default::default())
+        .deploy(&wallet, Default::default())
+        .await?;
+
+    let provider = wallet.provider().expect("No provider");
+
+    send_script_transaction(Instruction::OTHER(instruction), &wallet).await
+}
+
 /// We should move this to test-helpers once zkvm-perf doesn't have a dep on it
 pub async fn start_node_with_transaction_and_produce_prover_input(
     instruction: Instruction,
@@ -80,6 +96,9 @@ pub async fn start_node_with_transaction_and_produce_prover_input(
 
     let tx_inclusion_block_height = match instruction {
         Instruction::BLOB(instruction) => send_blob_transaction(instruction, wallet).await?,
+        Instruction::OTHER(instruction) if instruction == OtherInstruction::GM => {
+            send_gm_instruction(instruction, wallet).await?
+        }
         _ => send_script_transaction(instruction, &wallet).await?,
     };
 
@@ -96,6 +115,7 @@ mod tests {
     use fuel_zkvm_primitives_utils::vm::control::ControlInstruction;
     use fuel_zkvm_primitives_utils::vm::crypto::CryptoInstruction;
     use fuel_zkvm_primitives_utils::vm::memory::MemoryInstruction;
+    use fuel_zkvm_primitives_utils::vm::other::OtherInstruction;
 
     async fn basic_opcode_test(instruction: Instruction) {
         let service = start_node_with_transaction_and_produce_prover_input(instruction)
@@ -157,6 +177,17 @@ mod tests {
                 #[tokio::test]
                 async fn [<test_crypto_instruction_ $instruction:lower>]() {
                     basic_opcode_test(Instruction::CRYPTO(CryptoInstruction::$instruction)).await;
+                }
+            }
+        };
+    }
+
+    macro_rules! other_test {
+        ($instruction:ident) => {
+            paste::paste! {
+                #[tokio::test]
+                async fn [<test_other_instruction_ $instruction:lower>]() {
+                    basic_opcode_test(Instruction::OTHER(OtherInstruction::$instruction)).await;
                 }
             }
         };
@@ -254,4 +285,9 @@ mod tests {
     crypto_test!(ED19);
     crypto_test!(K256);
     crypto_test!(S256);
+
+    // Other Tests. Compare the number with other.rs
+    other_test!(GM);
+    other_test!(GTF);
+    other_test!(FLAG);
 }

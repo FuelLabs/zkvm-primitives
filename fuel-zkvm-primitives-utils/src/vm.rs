@@ -4,14 +4,15 @@ use crate::vm::blob::BlobInstruction;
 use crate::vm::control::ControlInstruction;
 use crate::vm::crypto::CryptoInstruction;
 use crate::vm::memory::MemoryInstruction;
+use crate::vm::other::OtherInstruction;
 
 pub mod alu;
-
 pub mod base;
 pub mod blob;
 pub mod control;
 pub mod crypto;
 pub mod memory;
+pub mod other;
 
 // Implemented instructions for the VM
 #[derive(Debug)]
@@ -21,6 +22,7 @@ pub enum Instruction {
     MEM(MemoryInstruction),
     BLOB(BlobInstruction),
     CRYPTO(CryptoInstruction),
+    OTHER(OtherInstruction),
 }
 
 impl AsRepr for Instruction {
@@ -31,6 +33,7 @@ impl AsRepr for Instruction {
             Instruction::MEM(mem) => mem.repr(),
             Instruction::BLOB(blob) => blob.repr(),
             Instruction::CRYPTO(crypto) => crypto.repr(),
+            Instruction::OTHER(other) => other.repr(),
         }
     }
 
@@ -41,6 +44,7 @@ impl AsRepr for Instruction {
             Instruction::MEM(mem) => mem.script_data(),
             Instruction::BLOB(blob) => blob.script_data(),
             Instruction::CRYPTO(crypto) => crypto.script_data(),
+            Instruction::OTHER(other) => other.script_data(),
         }
     }
 }
