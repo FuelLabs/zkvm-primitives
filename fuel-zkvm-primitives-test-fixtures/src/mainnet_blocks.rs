@@ -1,5 +1,10 @@
 #![allow(unused)]
 
+#[cfg_attr(
+    feature = "enhanced_enums",
+    derive(enum_iterator::Sequence, clap::ValueEnum)
+)]
+#[derive(Debug, Copy, Clone)]
 pub enum MainnetBlocks {
     // This is an empty block with just a mint tx
     Block1522295,

@@ -5,8 +5,6 @@ use crate::vm::control::ControlInstruction;
 use crate::vm::crypto::CryptoInstruction;
 use crate::vm::memory::MemoryInstruction;
 use crate::vm::other::OtherInstruction;
-use enum_iterator::all;
-use std::sync::OnceLock;
 
 pub mod alu;
 pub mod base;
@@ -16,10 +14,12 @@ pub mod crypto;
 pub mod memory;
 pub mod other;
 
-static INSTRUCTION_VARIANTS: OnceLock<Vec<Instruction>> = OnceLock::new();
+#[cfg(feature = "enhanced_enums")]
+static INSTRUCTION_VARIANTS: std::sync::OnceLock<Vec<Instruction>> = std::sync::OnceLock::new();
 
+#[cfg(feature = "enhanced_enums")]
 pub fn all_instructions() -> &'static Vec<Instruction> {
-    INSTRUCTION_VARIANTS.get_or_init(|| all::<Instruction>().collect())
+    INSTRUCTION_VARIANTS.get_or_init(|| enum_iterator::all::<Instruction>().collect())
 }
 
 // Implemented instructions for the VM

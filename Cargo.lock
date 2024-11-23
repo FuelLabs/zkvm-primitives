@@ -3076,6 +3076,8 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "bincode",
+ "clap",
+ "enum-iterator 2.1.0",
  "fuel-core",
  "fuel-core-executor",
  "fuel-core-storage",
