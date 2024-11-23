@@ -1927,6 +1927,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "enum-iterator"
+version = "2.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c280b9e6b3ae19e152d8e31cf47f18389781e119d4013a2a2bb0180e5facc635"
+dependencies = [
+ "enum-iterator-derive",
+]
+
+[[package]]
 name = "enum-iterator-derive"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2358,7 +2367,7 @@ dependencies = [
  "axum",
  "clap",
  "derive_more 0.99.18",
- "enum-iterator",
+ "enum-iterator 1.5.0",
  "fuel-core-chain-config",
  "fuel-core-compression",
  "fuel-core-consensus-module",
@@ -2510,7 +2519,7 @@ checksum = "eea974f842be1ca7783df7eec770b5865c3babd50a10a5d8f107bdac65419c45"
 dependencies = [
  "anyhow",
  "async-trait",
- "enum-iterator",
+ "enum-iterator 1.5.0",
  "fuel-core-services",
  "fuel-core-storage",
  "fuel-core-types 0.40.0",
@@ -2638,7 +2647,7 @@ checksum = "ed459b4e881bd48aa83c79f290b69f0ce699a5b4bd95ea35a8bf08582295504a"
 dependencies = [
  "anyhow",
  "async-trait",
- "enum-iterator",
+ "enum-iterator 1.5.0",
  "ethereum-types",
  "ethers-contract",
  "ethers-core",
@@ -2680,7 +2689,7 @@ checksum = "bda9242ebc9e8ef3251b9eae85f4ce5cdb376348baa30925606f3ce602db7ec5"
 dependencies = [
  "anyhow",
  "derive_more 0.99.18",
- "enum-iterator",
+ "enum-iterator 1.5.0",
  "fuel-core-types 0.40.0",
  "fuel-vm 0.58.2",
  "impl-tools",
@@ -3088,7 +3097,9 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "bincode",
+ "clap",
  "ed25519-dalek",
+ "enum-iterator 2.1.0",
  "ethnum",
  "fuel-core",
  "fuel-core-executor",

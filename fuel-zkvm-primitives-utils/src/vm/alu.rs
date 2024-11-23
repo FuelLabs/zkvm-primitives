@@ -54,6 +54,10 @@ use fuel_core_types::fuel_asm::{op, Instruction, RegId};
 // - [x] **XOR**: XOR
 // - [x] **XORI**: XOR immediate
 
+#[cfg_attr(
+    feature = "enhanced_enums",
+    derive(clap::ValueEnum, enum_iterator::Sequence)
+)]
 #[derive(Debug, Clone)]
 pub enum AluInstruction {
     ADD,

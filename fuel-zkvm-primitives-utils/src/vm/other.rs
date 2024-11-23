@@ -30,6 +30,10 @@ fn gm_metadata() -> &'static (ContractId, AssetId, Vec<u8>, Vec<u8>) {
     })
 }
 
+#[cfg_attr(
+    feature = "enhanced_enums",
+    derive(clap::ValueEnum, enum_iterator::Sequence)
+)]
 #[allow(clippy::upper_case_acronyms)]
 #[derive(Debug, PartialEq, Clone)]
 pub enum OtherInstruction {

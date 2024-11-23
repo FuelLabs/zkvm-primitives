@@ -19,6 +19,10 @@ fn get_blob_instance() -> &'static Vec<u8> {
     })
 }
 
+#[cfg_attr(
+    feature = "enhanced_enums",
+    derive(clap::ValueEnum, enum_iterator::Sequence)
+)]
 #[derive(Debug, Copy, Clone)]
 pub enum BlobInstruction {
     BSIZ,

@@ -1,6 +1,10 @@
 use crate::vm::AsRepr;
 use fuel_core_types::fuel_asm::{op, RegId};
 
+#[cfg_attr(
+    feature = "enhanced_enums",
+    derive(clap::ValueEnum, enum_iterator::Sequence)
+)]
 #[derive(Debug, Clone)]
 pub enum ControlInstruction {
     JMP,

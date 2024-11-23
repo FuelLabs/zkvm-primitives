@@ -56,6 +56,10 @@ fn ed19_script_data() -> &'static (ed25519_dalek::SigningKey, ed25519_dalek::Sig
     })
 }
 
+#[cfg_attr(
+    feature = "enhanced_enums",
+    derive(clap::ValueEnum, enum_iterator::Sequence)
+)]
 #[derive(Debug, Copy, Clone)]
 pub enum CryptoInstruction {
     ECK1,
