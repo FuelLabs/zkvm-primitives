@@ -61,7 +61,7 @@ impl AsRepr for MemoryInstruction {
                 op::jmpb(RegId::ZERO, 0),
             ],
             MemoryInstruction::MCP => vec![
-                op::movi(0x11, 100000),
+                op::movi(0x11, 10000),
                 op::aloc(0x11),
                 op::move_(0x10, RegId::HP),
                 op::mcp(0x10, RegId::ZERO, 0x11),
@@ -197,7 +197,7 @@ pub fn set_full_word(r: RegisterId, v: Word) -> Vec<Instruction> {
 }
 
 fn meq() -> Vec<Instruction> {
-    let mut prepared = set_full_word(0x13, 100000);
+    let mut prepared = set_full_word(0x13, 10000);
     prepared.extend(vec![
         op::meq(0x10, RegId::ZERO, RegId::ZERO, 0x13),
         op::jmpb(RegId::ZERO, 0),
