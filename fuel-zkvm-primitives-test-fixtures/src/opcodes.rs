@@ -13,6 +13,7 @@ use fuels::{accounts::Account, prelude::WalletUnlocked, types::BlockHeight};
 use fuels_core::types::transaction_builders::{
     Blob, BlobTransactionBuilder, BuildableTransaction, ScriptTransactionBuilder,
 };
+use fuels_core::types::tx_status::TxStatus;
 
 async fn send_script_transaction(
     instruction: Instruction,
@@ -37,13 +38,28 @@ async fn send_script_transaction(
     // Sleep to await the transaction inclusion in off chain database.
     tokio::time::sleep(std::time::Duration::from_secs(2)).await;
 
-    let inclusion_block_height = provider
+    let tx = provider
         .get_transaction_by_id(&tx_id)
         .await
         .expect("No transaction")
-        .expect("No transaction")
-        .block_height
-        .expect("No block height");
+        .expect("No transaction");
+
+    let revert_reason = match tx.status {
+        TxStatus::Success { .. } => {
+            return Err(anyhow::anyhow!("Transaction should have reverted"))
+        }
+        TxStatus::Submitted => return Err(anyhow::anyhow!("Transaction should have executed")),
+        TxStatus::SqueezedOut { .. } => {
+            return Err(anyhow::anyhow!(
+                "Transaction should have been included and reverted"
+            ))
+        }
+        TxStatus::Revert { reason, .. } => reason,
+    };
+
+    assert_eq!(revert_reason, "OutOfGas");
+
+    let inclusion_block_height = tx.block_height.expect("No block height");
 
     Ok(inclusion_block_height)
 }

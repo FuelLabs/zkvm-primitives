@@ -23,7 +23,7 @@ fn gm_metadata() -> &'static (ContractId, AssetId, Vec<u8>, Vec<u8>) {
             .iter()
             .copied()
             .chain((32 as Word).to_be_bytes().iter().copied())
-            .chain((32 as Word).to_be_bytes().iter().copied())
+            .chain((0 as Word).to_be_bytes().iter().copied())
             .chain(asset_id.iter().copied())
             .collect();
         (contract_id, asset_id, raw_contract_code, script_data)
