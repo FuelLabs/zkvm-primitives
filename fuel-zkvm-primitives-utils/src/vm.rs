@@ -1,6 +1,7 @@
 use crate::vm::alu::AluInstruction;
 use crate::vm::base::AsRepr;
 use crate::vm::blob::BlobInstruction;
+use crate::vm::contract::ContractInstruction;
 use crate::vm::control::ControlInstruction;
 use crate::vm::crypto::CryptoInstruction;
 use crate::vm::memory::MemoryInstruction;
@@ -9,6 +10,7 @@ use crate::vm::other::OtherInstruction;
 pub mod alu;
 pub mod base;
 pub mod blob;
+pub mod contract;
 pub mod control;
 pub mod crypto;
 pub mod memory;
@@ -32,6 +34,7 @@ pub enum Instruction {
     BLOB(BlobInstruction),
     CRYPTO(CryptoInstruction),
     OTHER(OtherInstruction),
+    CONTRACT(ContractInstruction),
 }
 
 impl AsRepr for Instruction {
@@ -43,6 +46,7 @@ impl AsRepr for Instruction {
             Instruction::BLOB(blob) => blob.repr(),
             Instruction::CRYPTO(crypto) => crypto.repr(),
             Instruction::OTHER(other) => other.repr(),
+            Instruction::CONTRACT(contract) => contract.repr(),
         }
     }
 
@@ -54,6 +58,7 @@ impl AsRepr for Instruction {
             Instruction::BLOB(blob) => blob.script_data(),
             Instruction::CRYPTO(crypto) => crypto.script_data(),
             Instruction::OTHER(other) => other.script_data(),
+            Instruction::CONTRACT(contract) => contract.script_data(),
         }
     }
 }
@@ -71,6 +76,7 @@ impl clap::ValueEnum for Instruction {
             Instruction::BLOB(i) => i.to_possible_value(),
             Instruction::CRYPTO(i) => i.to_possible_value(),
             Instruction::OTHER(i) => i.to_possible_value(),
+            Instruction::CONTRACT(i) => i.to_possible_value(),
         }
     }
 }

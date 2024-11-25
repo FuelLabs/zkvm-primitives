@@ -6,53 +6,6 @@ use fuel_core_types::fuel_asm::wideint::{
 use fuel_core_types::fuel_asm::{op, Instruction, RegId};
 
 /// This file contains helpers to generate scripts with various alu operations in an infinite loop.
-/// Below is a checklist of what has been implemented and what hasn't
-// - [x] **ADD**: Add
-// - [x] **ADDI**: Add immediate
-// - [x] **AND**: AND
-// - [x] **ANDI**: AND immediate
-// - [x] **DIV**: Divide
-// - [x] **DIVI**: Divide immediate
-// - [x] **EQ**: Equals
-// - [x] **EXP**: Exponentiate
-// - [x] **EXPI**: Exponentiate immediate
-// - [x] **GT**: Greater than
-// - [x] **LT**: Less than
-// - [x] **MLOG**: Math logarithm
-// - [x] **MOD**: Modulus
-// - [x] **MODI**: Modulus immediate
-// - [x] **MOVE**: Move
-// - [x] **MOVI**: Move immediate
-// - [x] **MROO**: Math root
-// - [x] **MUL**: Multiply
-// - [x] **MULI**: Multiply immediate
-// - [x] **MLDV**: Fused multiply-divide
-// - [x] **NOOP**: No operation
-// - [x] **NOT**: Invert
-// - [x] **OR**: OR
-// - [x] **ORI**: OR immediate
-// - [x] **SLL**: Shift left logical
-// - [x] **SLLI**: Shift left logical immediate
-// - [x] **SRL**: Shift right logical
-// - [x] **SRLI**: Shift right logical immediate
-// - [x] **SUB**: Subtract
-// - [x] **SUBI**: Subtract immediate
-// - [x] **WDCM**: 128-bit integer comparison
-// - [x] **WQCM**: 256-bit integer comparison
-// - [x] **WDOP**: Misc 128-bit integer operations
-// - [x] **WQOP**: Misc 256-bit integer operations
-// - [x] **WDML**: Multiply 128-bit integers
-// - [x] **WQML**: Multiply 256-bit integers
-// - [x] **WDDV**: 128-bit integer division
-// - [x] **WQDV**: 256-bit integer division
-// - [x] **WDMD**: 128-bit integer fused multiply-divide
-// - [x] **WQMD**: 256-bit integer fused multiply-divide
-// - [x] **WDAM**: Modular 128-bit integer addition
-// - [x] **WQAM**: Modular 256-bit integer addition
-// - [x] **WDMM**: Modular 128-bit integer multiplication
-// - [x] **WQMM**: Modular 256-bit integer multiplication
-// - [x] **XOR**: XOR
-// - [x] **XORI**: XOR immediate
 
 #[cfg_attr(
     feature = "enhanced_enums",
