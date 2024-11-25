@@ -87,21 +87,6 @@ async fn send_blob_transaction(
     send_script_transaction(Instruction::BLOB(instruction), &wallet).await
 }
 
-async fn send_gm_instruction(
-    instruction: OtherInstruction,
-    wallet: WalletUnlocked,
-) -> anyhow::Result<BlockHeight> {
-    let contract_code = instruction.scaffold();
-
-    let mut builder = Contract::regular(contract_code, Default::default(), Default::default())
-        .deploy(&wallet, Default::default())
-        .await?;
-
-    let provider = wallet.provider().expect("No provider");
-
-    send_script_transaction(Instruction::OTHER(instruction), &wallet).await
-}
-
 /// We should move this to test-helpers once zkvm-perf doesn't have a dep on it
 pub async fn start_node_with_transaction_and_produce_prover_input(
     instruction: Instruction,
@@ -110,9 +95,6 @@ pub async fn start_node_with_transaction_and_produce_prover_input(
 
     let tx_inclusion_block_height = match instruction {
         Instruction::BLOB(instruction) => send_blob_transaction(instruction, wallet).await?,
-        Instruction::OTHER(instruction) if instruction == OtherInstruction::GM => {
-            send_gm_instruction(instruction, wallet).await?
-        }
         _ => send_script_transaction(instruction, &wallet).await?,
     };
 
