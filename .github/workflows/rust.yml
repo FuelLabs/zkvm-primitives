@@ -16,14 +16,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - uses: actions/checkout@v4
+    - name: Build
+      run: cargo build --verbose --all-features --all-targets
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Clippy
+      run: cargo clippy --all --all-features --all-targets
+    - name: Formatting
+      run: cargo +nightly fmt --check --all
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
     - name: Install nextest
       uses: taiki-e/install-action@nextest
     - uses: actions/checkout@v4
-    - name: Build
-      run: cargo build --verbose
-    - name: Clippy
-      run: cargo clippy --all
-    - name: Formatting
-      run: cargo +nightly fmt --check --all
     - name: Run tests
       run: cargo nextest run
