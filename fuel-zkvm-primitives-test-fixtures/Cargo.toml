@@ -28,7 +28,7 @@ enum-iterator = { version = "2.1.0", optional = true }
 which = "7.0.0"
 
 [build-dependencies]
-which = "7.0.0"
+forc = "0.66.5"
 
 [dev-dependencies]
 paste = "1.0"

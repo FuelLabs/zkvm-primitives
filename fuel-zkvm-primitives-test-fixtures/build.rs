@@ -1,25 +1,38 @@
-use std::env;
 use std::path::Path;
-use std::process::Command;
+use forc::cli::BuildCommand;
+use forc::cli::shared::{Build, BuildOutput, Pkg};
+use forc::ops::forc_build;
 
 pub fn main() {
-    // Check if `forc` is available in the system PATH
-    let forc_binary = which::which("forc").unwrap_or_else(|_| {
-        // If `forc` is not found in PATH, check $HOME/.fuelup/bin/forc
-        let home_dir = env::var("HOME").expect("Failed to get $HOME directory");
-        let fallback_path = Path::new(&home_dir).join(".fuelup/bin/forc");
-        if fallback_path.exists() {
-            fallback_path
-        } else {
-            panic!("`forc` binary not found in PATH or at $HOME/.fuelup/bin/forc");
-        }
-    });
+    let base_path = Path::new("src/fixtures/counter_contract");
+    let out_dir = base_path.join("out");
+    let out_bin = out_dir.join("counter_contract.bin");
 
-    // Use the determined `forc` binary to build the contract
-    Command::new(forc_binary)
-        .arg("build")
-        .arg("--path")
-        .arg("src/fixtures/counter_contract")
-        .spawn()
-        .expect("Failed to build contract");
+    // create out_dir if it doesn't exist
+    std::fs::create_dir_all(out_dir).expect("Failed to create out directory");
+
+    let build_command = BuildCommand {
+        build: Build {
+            pkg: Pkg {
+                path: Some(base_path.display().to_string()),
+                offline: false,
+                terse: false,
+                output_directory: None,
+                locked: false,
+                ipfs_node: None,
+            },
+            print: Default::default(),
+            minify: Default::default(),
+            output: BuildOutput {
+                bin_file: Some(out_bin.display().to_string()),
+                debug_file: None,
+            },
+            profile: Default::default(),
+            build_target: Default::default(),
+        },
+        tests: false,
+        experimental: Default::default(),
+    };
+
+    forc_build::build(build_command).expect("Failed to build contract");
 }

@@ -8,15 +8,15 @@ mod tests {
     const COUNTER_CONTRACT_CONSENSUS_PARAMETERS: &[u8] =
         include_bytes!("fixtures/counter_contract/test_consensus_parameters.json");
 
-    abigen!(Contract(name = "Counter", abi = "fuel-zkvm-primitives-test-fixtures/src/fixtures/counter_contract/out/debug/counter_contract-abi.json"));
+    abigen!(Contract(name = "Counter", abi = "fuel-zkvm-primitives-test-fixtures/src/fixtures/counter_contract/out/counter_contract-abi.json"));
 
     async fn deploy(wallet: WalletUnlocked) -> (Counter<WalletUnlocked>, ContractId) {
         let id = Contract::load_from(
-            "src/fixtures/counter_contract/out/debug/counter_contract.bin",
+            "src/fixtures/counter_contract/out/counter_contract.bin",
             LoadConfiguration::default().with_storage_configuration(
                 StorageConfiguration::default()
                     .add_slot_overrides_from_file(
-                        "src/fixtures/counter_contract/out/debug/counter_contract-storage_slots.json",
+                        "src/fixtures/counter_contract/out/counter_contract-storage_slots.json",
                     )
                     .unwrap(),
             ),
