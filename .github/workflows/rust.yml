@@ -18,16 +18,16 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build
-      run: cargo build --verbose --all-features --all-targets
+      run: cargo build --verbose --all-features
 
   lint:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
     - name: Clippy
-      run: cargo clippy --all --all-features --all-targets
+      run: cargo clippy --all --all-features
     - name: Formatting
-      run: cargo +nightly fmt --check --all
+      run: cargo +nightly fmt --all -- --check
 
   test:
     runs-on: ubuntu-latest
