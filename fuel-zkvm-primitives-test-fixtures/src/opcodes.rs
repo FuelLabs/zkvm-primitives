@@ -7,7 +7,7 @@ use fuel_core_storage::StorageAsRef;
 use fuel_zkvm_primitives_utils::vm::base::AsRepr;
 use fuel_zkvm_primitives_utils::vm::blob::BlobInstruction;
 use fuel_zkvm_primitives_utils::vm::other::OtherInstruction;
-pub use fuel_zkvm_primitives_utils::vm::{Instruction, alu::AluInstruction};
+pub use fuel_zkvm_primitives_utils::vm::{alu::AluInstruction, Instruction};
 use fuels::prelude::Contract;
 use fuels::{accounts::Account, prelude::WalletUnlocked, types::BlockHeight};
 use fuels_core::types::transaction_builders::{
