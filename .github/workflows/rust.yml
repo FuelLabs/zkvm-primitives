@@ -22,7 +22,7 @@ jobs:
     - name: Install forc
       run: |
         curl https://install.fuel.network | sh
-        echo "/home/runner/.fuelup/bin" >> $GITHUB_ENV
+        alias forc="/home/runner/.fuelup/bin/forc"
     - name: Build
       run: cargo build --verbose --all-features
 
@@ -37,7 +37,7 @@ jobs:
     - name: Install forc
       run: |
         curl https://install.fuel.network | sh
-        echo "/home/runner/.fuelup/bin" >> $GITHUB_ENV
+        alias forc="/home/runner/.fuelup/bin/forc"
     - uses: Swatinem/rust-cache@v2
     - name: Clippy
       run: cargo clippy --all --all-features
@@ -52,7 +52,7 @@ jobs:
     - name: Install forc
       run: |
         curl https://install.fuel.network | sh
-        echo "/home/runner/.fuelup/bin" >> $GITHUB_ENV
+        alias forc="/home/runner/.fuelup/bin/forc"
     - uses: actions/checkout@v4
     - run: rustup target add wasm32-unknown-unknown
     - uses: Swatinem/rust-cache@v2
