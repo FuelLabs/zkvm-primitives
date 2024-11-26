@@ -18,6 +18,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - run: rustup target add wasm32-unknown-unknown
+    - uses: Swatinem/rust-cache@v2
     - name: Build
       run: cargo build --verbose --all-features
 
@@ -29,6 +30,7 @@ jobs:
         rustup target add wasm32-unknown-unknown
         rustup toolchain install nightly
         rustup component add rustfmt --toolchain nightly
+    - uses: Swatinem/rust-cache@v2
     - name: Clippy
       run: cargo clippy --all --all-features
     - name: Formatting
@@ -44,5 +46,6 @@ jobs:
         curl https://install.fuel.network | sh
     - uses: actions/checkout@v4
     - run: rustup target add wasm32-unknown-unknown
+    - uses: Swatinem/rust-cache@v2
     - name: Run tests
       run: cargo nextest run
