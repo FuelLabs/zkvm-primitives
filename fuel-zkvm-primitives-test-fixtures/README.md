@@ -11,7 +11,6 @@ cargo test --lib opcodes::tests
 ## Test Counter Contract
 
 ```shell
-forc build --path src/fixtures/counter_contract
 cargo test --lib counter_contract::tests
 ```
 

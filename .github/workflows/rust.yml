@@ -39,6 +39,9 @@ jobs:
     steps:
     - name: Install nextest
       uses: taiki-e/install-action@nextest
+    - name: Install forc
+      run: |
+        curl https://install.fuel.network | sh
     - uses: actions/checkout@v4
     - run: rustup target add wasm32-unknown-unknown
     - name: Run tests
