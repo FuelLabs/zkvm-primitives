@@ -1,0 +1,29 @@
+name: Rust CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Install nextest
+      uses: taiki-e/install-action@nextest
+    - uses: actions/checkout@v4
+    - name: Build
+      run: cargo build --verbose
+    - name: Clippy
+      run: cargo clippy --all
+    - name: Formatting
+      run: cargo +nightly fmt --check --all
+    - name: Run tests
+      run: cargo nextest run
