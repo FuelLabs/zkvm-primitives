@@ -21,10 +21,10 @@ mod tests {
                     .unwrap(),
             ),
         )
-            .unwrap()
-            .deploy(&wallet, TxPolicies::default())
-            .await
-            .unwrap();
+        .unwrap()
+        .deploy(&wallet, TxPolicies::default())
+        .await
+        .unwrap();
 
         let instance = Counter::new(id.clone(), wallet);
 

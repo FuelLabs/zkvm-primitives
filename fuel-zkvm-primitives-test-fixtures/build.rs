@@ -1,7 +1,7 @@
-use std::path::Path;
-use forc::cli::BuildCommand;
 use forc::cli::shared::{Build, BuildOutput, Pkg};
+use forc::cli::BuildCommand;
 use forc::ops::forc_build;
+use std::path::Path;
 
 pub fn main() {
     let base_path = Path::new("src/fixtures/counter_contract");
