@@ -33,10 +33,19 @@ fn ecr1_script_data() -> &'static Vec<u8> {
     })
 }
 
-static ED19_SCRIPT_DATA: OnceLock<(ed25519_dalek::SigningKey, ed25519_dalek::Signature, Vec<u8>)> =
-    OnceLock::new();
+static ED19_SCRIPT_DATA: OnceLock<(
+    ed25519_dalek::SigningKey,
+    ed25519_dalek::Signature,
+    Vec<u8>,
+    Message,
+)> = OnceLock::new();
 
-fn ed19_script_data() -> &'static (ed25519_dalek::SigningKey, ed25519_dalek::Signature, Vec<u8>) {
+fn ed19_script_data() -> &'static (
+    ed25519_dalek::SigningKey,
+    ed25519_dalek::Signature,
+    Vec<u8>,
+    Message,
+) {
     ED19_SCRIPT_DATA.get_or_init(|| {
         let mut rng = &mut StdRng::seed_from_u64(2322u64);
         let message = Message::new(b"foo");
@@ -52,7 +61,7 @@ fn ed19_script_data() -> &'static (ed25519_dalek::SigningKey, ed25519_dalek::Sig
             .copied()
             .collect();
 
-        (ed19_secret, signature, script_data)
+        (ed19_secret, signature, script_data, message)
     })
 }
 
@@ -139,8 +148,8 @@ fn ed19() -> Vec<Instruction> {
             0x21,
             ed19_params.1.to_bytes().len().try_into().unwrap(),
         ),
-        op::movi(0x10, 1000),
-        op::cfe(0x10),
+        op::movi(0x10, ed19_params.3.len() as u32),
+        op::ed19(0x20, 0x21, 0x22, 0x23),
         op::jmpb(RegId::ZERO, 0),
     ]
 }
