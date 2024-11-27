@@ -9,6 +9,7 @@ use fuel_core_types::fuel_types::RegisterId;
     feature = "enhanced_enums",
     derive(clap::ValueEnum, enum_iterator::Sequence)
 )]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[allow(clippy::upper_case_acronyms)]
 #[derive(Debug, Clone)]
 pub enum MemoryInstruction {

@@ -26,6 +26,7 @@ pub fn all_instructions() -> &'static Vec<Instruction> {
 
 // Implemented instructions for the VM
 #[cfg_attr(feature = "enhanced_enums", derive(enum_iterator::Sequence))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone)]
 pub enum Instruction {
     ALU(AluInstruction),

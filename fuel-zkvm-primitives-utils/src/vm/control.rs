@@ -5,6 +5,7 @@ use fuel_core_types::fuel_asm::{op, RegId};
     feature = "enhanced_enums",
     derive(clap::ValueEnum, enum_iterator::Sequence)
 )]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone)]
 pub enum ControlInstruction {
     JMP,

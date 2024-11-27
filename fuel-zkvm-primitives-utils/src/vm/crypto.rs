@@ -69,6 +69,7 @@ fn ed19_script_data() -> &'static (
     feature = "enhanced_enums",
     derive(clap::ValueEnum, enum_iterator::Sequence)
 )]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Copy, Clone)]
 pub enum CryptoInstruction {
     ECK1,

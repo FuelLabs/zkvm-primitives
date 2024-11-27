@@ -5,6 +5,7 @@
     derive(enum_iterator::Sequence, clap::ValueEnum)
 )]
 #[cfg_attr(feature = "enhanced_enums", clap(rename_all = "snake_case"))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[allow(non_camel_case_types)]
 #[derive(Debug, Copy, Clone)]
 pub enum MainnetBlocks {

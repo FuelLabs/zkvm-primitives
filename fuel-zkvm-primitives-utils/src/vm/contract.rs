@@ -8,6 +8,7 @@ use fuel_core_types::fuel_vm::consts::WORD_SIZE;
     feature = "enhanced_enums",
     derive(clap::ValueEnum, enum_iterator::Sequence)
 )]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Copy, Clone)]
 pub enum ContractInstruction {
     BAL,

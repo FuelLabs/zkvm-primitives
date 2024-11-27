@@ -11,6 +11,7 @@ pub fn all_fixtures() -> &'static Vec<Fixture> {
 }
 
 #[derive(Debug, Clone, enum_iterator::Sequence)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Fixture {
     MainnetBlock(MainnetBlocks),
     Opcode(Instruction),
