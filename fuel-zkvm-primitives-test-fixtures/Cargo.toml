@@ -36,4 +36,4 @@ paste = "1.0"
 
 [features]
 enhanced_enums = ["fuel-zkvm-primitives-utils/enhanced_enums", "dep:enum-iterator", "dep:clap"]
-serde = ["dep:serde"]
+serde = ["dep:serde", "fuel-zkvm-primitives-utils/serde"]
