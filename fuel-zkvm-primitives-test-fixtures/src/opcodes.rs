@@ -107,6 +107,7 @@ mod tests {
     use super::*;
     use fuel_zkvm_primitives_utils::vm::alu::AluInstruction;
     use fuel_zkvm_primitives_utils::vm::blob::BlobInstruction;
+    use fuel_zkvm_primitives_utils::vm::contract::ContractInstruction;
     use fuel_zkvm_primitives_utils::vm::control::ControlInstruction;
     use fuel_zkvm_primitives_utils::vm::crypto::CryptoInstruction;
     use fuel_zkvm_primitives_utils::vm::memory::MemoryInstruction;
@@ -183,6 +184,17 @@ mod tests {
                 #[tokio::test]
                 async fn [<test_other_instruction_ $instruction:lower>]() {
                     basic_opcode_test(Instruction::OTHER(OtherInstruction::$instruction)).await;
+                }
+            }
+        };
+    }
+
+    macro_rules! contract_test {
+        ($instruction:ident) => {
+            paste::paste! {
+                #[tokio::test]
+                async fn [<test_contract_instruction_ $instruction:lower>]() {
+                    basic_opcode_test(Instruction::CONTRACT(ContractInstruction::$instruction)).await;
                 }
             }
         };
@@ -285,4 +297,11 @@ mod tests {
     other_test!(GM);
     other_test!(GTF);
     other_test!(FLAG);
+
+    // Contract Tests. Compare the number with contract.rs
+    contract_test!(BHEI);
+    contract_test!(BHSH);
+    contract_test!(CB);
+    contract_test!(LOG);
+    contract_test!(TIME);
 }
