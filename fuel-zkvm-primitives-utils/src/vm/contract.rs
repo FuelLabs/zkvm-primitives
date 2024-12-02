@@ -1,5 +1,5 @@
 use crate::vm::base::AsRepr;
-use fuel_core_types::fuel_asm::{op, Instruction, RegId};
+use fuel_core_types::fuel_asm::{op, GTFArgs, Instruction, RegId};
 use fuel_core_types::fuel_tx::Word;
 use fuel_core_types::fuel_types::Bytes32;
 use fuels::prelude::AssetId;
@@ -172,8 +172,8 @@ impl ContractInstruction {
 
 fn bal() -> Vec<Instruction> {
     vec![
-        op::movi(0x11, 0),
-        op::addi(0x12, 0x11, AssetId::LEN.try_into().unwrap()),
+        op::gtf_args(0x11, 0x00, GTFArgs::ScriptData),
+        op::addi(0x12, 0x11, ContractId::LEN.try_into().unwrap()),
         op::bal(0x10, 0x12, 0x11),
         op::jmpb(RegId::ZERO, 0),
     ]

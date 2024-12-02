@@ -6,6 +6,8 @@ use crate::vm::control::ControlInstruction;
 use crate::vm::crypto::CryptoInstruction;
 use crate::vm::memory::MemoryInstruction;
 use crate::vm::other::OtherInstruction;
+use fuels::types::input::Input as TxInput;
+use fuels::types::output::Output as TxOutput;
 
 pub mod alu;
 pub mod base;
@@ -60,6 +62,20 @@ impl AsRepr for Instruction {
             Instruction::CRYPTO(crypto) => crypto.script_data(),
             Instruction::OTHER(other) => other.script_data(),
             Instruction::CONTRACT(contract) => contract.script_data(),
+        }
+    }
+
+    fn additional_inputs(&self) -> Option<Vec<TxInput>> {
+        match &self {
+            Instruction::CONTRACT(contract) => contract.additional_inputs(),
+            _ => None,
+        }
+    }
+
+    fn additional_outputs(&self) -> Option<Vec<TxOutput>> {
+        match &self {
+            Instruction::CONTRACT(contract) => contract.additional_outputs(),
+            _ => None,
         }
     }
 }

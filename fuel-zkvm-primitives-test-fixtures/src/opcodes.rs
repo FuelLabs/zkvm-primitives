@@ -8,8 +8,9 @@ use fuel_core::database::Database;
 use fuel_core::service::{FuelService, SharedState};
 use fuel_core_storage::rand::prelude::StdRng;
 use fuel_core_storage::rand::{RngCore, SeedableRng};
-use fuel_core_storage::tables::ContractsRawCode;
+use fuel_core_storage::tables::{ContractsLatestUtxo, ContractsRawCode};
 use fuel_core_storage::{StorageAsMut, StorageAsRef};
+use fuel_core_types::entities::contract::ContractUtxoInfo;
 use fuel_zkvm_primitives_utils::vm::base::AsRepr;
 use fuel_zkvm_primitives_utils::vm::blob::BlobInstruction;
 use fuel_zkvm_primitives_utils::vm::contract::ContractInstruction;
@@ -67,9 +68,10 @@ async fn send_script_transaction(
             return Err(anyhow::anyhow!("Transaction should have reverted"))
         }
         TxStatus::Submitted => return Err(anyhow::anyhow!("Transaction should have executed")),
-        TxStatus::SqueezedOut { .. } => {
+        TxStatus::SqueezedOut { reason } => {
             return Err(anyhow::anyhow!(
-                "Transaction should have been included and reverted"
+                "Transaction should have been included and reverted: {}",
+                reason
             ))
         }
         TxStatus::Revert { reason, .. } => reason,
@@ -84,7 +86,7 @@ async fn send_script_transaction(
 
 async fn send_blob_transaction(
     instruction: BlobInstruction,
-    wallet: WalletUnlocked,
+    wallet: &WalletUnlocked,
 ) -> anyhow::Result<BlockHeight> {
     let blob_data = instruction.blob_data();
 
@@ -114,6 +116,12 @@ async fn scaffold_contract_instruction(
     if let Some((contract_id, contract_bytecode)) = contract_metadata {
         db.storage_as_mut::<ContractsRawCode>()
             .insert(&contract_id, &contract_bytecode)?;
+
+        // need this for existence checks
+        db.storage_as_mut::<ContractsLatestUtxo>()
+            .insert(&contract_id, &ContractUtxoInfo::default())?;
+
+        // assets, storage
     }
 
     Ok(())
@@ -123,28 +131,28 @@ async fn scaffold_contract_instruction(
 pub async fn start_node_with_transaction_and_produce_prover_input(
     instruction: Instruction,
 ) -> anyhow::Result<Service> {
-    let fuel_node;
-    let wallet;
-
-    let tx_inclusion_block_height = match instruction {
+    let (fuel_node, wallet, tx_inclusion_block_height) = match instruction {
         Instruction::BLOB(instruction) => {
-            (fuel_node, wallet) = start_node(None).await;
-            send_blob_transaction(instruction, wallet).await?
+            let (fuel_node, wallet) = start_node(None).await;
+            let block_height = send_blob_transaction(instruction, &wallet).await?;
+            (fuel_node, wallet, block_height)
         }
         Instruction::CONTRACT(instruction) => {
             let mut db = get_temp_db();
             scaffold_contract_instruction(&mut db, instruction).await?;
-            (fuel_node, wallet) = start_node_with_db(db, None).await;
-            send_script_transaction(Instruction::CONTRACT(instruction), &wallet).await?
+            let (fuel_node, wallet) = start_node_with_db(db, None).await;
+            let block_height =
+                send_script_transaction(Instruction::CONTRACT(instruction), &wallet).await?;
+            (fuel_node, wallet, block_height)
         }
         _ => {
-            (fuel_node, wallet) = start_node(None).await;
-            send_script_transaction(instruction, &wallet).await?
+            let (fuel_node, wallet) = start_node(None).await;
+            let block_height = send_script_transaction(instruction, &wallet).await?;
+            (fuel_node, wallet, block_height)
         }
     };
 
-    let service = generate_input_at_block_height(fuel_node, tx_inclusion_block_height).await?;
-    Ok(service)
+    generate_input_at_block_height(fuel_node, tx_inclusion_block_height).await
 }
 
 #[allow(non_snake_case)]
