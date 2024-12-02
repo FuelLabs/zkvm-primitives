@@ -1,5 +1,5 @@
 use crate::vm::base::AsRepr;
-use fuel_core_types::fuel_asm::{op, Instruction, RegId};
+use fuel_core_types::fuel_asm::{op, GTFArgs, Instruction, RegId};
 use fuel_core_types::fuel_tx::Word;
 use fuel_core_types::fuel_types::bytes::WORD_SIZE;
 use fuel_core_types::fuel_types::Bytes32;
@@ -174,17 +174,9 @@ impl ContractInstruction {
 fn bal() -> Vec<Instruction> {
     let word_size = WORD_SIZE.try_into().unwrap();
     vec![
-        // alloc 32 empty bytes
-        op::movi(0x13, word_size),
-        op::aloc(0x13),
-        // alloc 32 empty bytes
-        op::movi(0x14, word_size),
-        op::aloc(0x14),
-        // first memory address for asset id
-        op::movi(0x11, 0),
-        // second memory address for contract id
-        op::addi(0x12, 0x11, word_size as u16),
-        op::bal(0x10, 0x11, 0x12),
+        op::gtf_args(0x11, 0x00, GTFArgs::ScriptData),
+        op::addi(0x12, 0x11, word_size),
+        op::bal(0x10, 0x12, 0x11),
         op::jmpb(RegId::ZERO, 0),
     ]
 }
