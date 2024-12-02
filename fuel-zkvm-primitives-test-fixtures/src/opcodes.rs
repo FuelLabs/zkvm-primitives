@@ -1,9 +1,15 @@
 #![allow(unused)]
 
-use crate::utils::{generate_input_at_block_height, start_node, Service};
+use crate::utils::{
+    generate_input_at_block_height, get_temp_db, start_node, start_node_with_db, Service,
+};
+use fuel_core::database::database_description::on_chain::OnChain;
+use fuel_core::database::Database;
+use fuel_core::service::{FuelService, SharedState};
 use fuel_core_storage::rand::prelude::StdRng;
 use fuel_core_storage::rand::{RngCore, SeedableRng};
-use fuel_core_storage::StorageAsRef;
+use fuel_core_storage::tables::ContractsRawCode;
+use fuel_core_storage::{StorageAsMut, StorageAsRef};
 use fuel_zkvm_primitives_utils::vm::base::AsRepr;
 use fuel_zkvm_primitives_utils::vm::blob::BlobInstruction;
 use fuel_zkvm_primitives_utils::vm::contract::ContractInstruction;
@@ -99,25 +105,42 @@ async fn send_blob_transaction(
     send_script_transaction(Instruction::BLOB(instruction), &wallet).await
 }
 
-async fn send_contract_transaction(
+async fn scaffold_contract_instruction(
+    db: &mut Database<OnChain>,
     instruction: ContractInstruction,
-    wallet: WalletUnlocked,
-) -> anyhow::Result<BlockHeight> {
-    let contract_bytecode = instruction.contract_data();
-    // insert contract into storage here and then call the script tx
-    send_script_transaction(Instruction::CONTRACT(instruction), &wallet).await
+) -> anyhow::Result<()> {
+    let contract_metadata = instruction.contract_metadata();
+
+    if let Some((contract_id, contract_bytecode)) = contract_metadata {
+        db.storage_as_mut::<ContractsRawCode>()
+            .insert(&contract_id, &contract_bytecode)?;
+    }
+
+    Ok(())
 }
 
 /// We should move this to test-helpers once zkvm-perf doesn't have a dep on it
 pub async fn start_node_with_transaction_and_produce_prover_input(
     instruction: Instruction,
 ) -> anyhow::Result<Service> {
-    let (fuel_node, wallet) = start_node(None).await;
+    let fuel_node;
+    let wallet;
 
     let tx_inclusion_block_height = match instruction {
-        Instruction::BLOB(instruction) => send_blob_transaction(instruction, wallet).await?,
-        // Instruction::CONTRACT(instruction) => send_contract_transaction(instruction, wallet).await?,
-        _ => send_script_transaction(instruction, &wallet).await?,
+        Instruction::BLOB(instruction) => {
+            (fuel_node, wallet) = start_node(None).await;
+            send_blob_transaction(instruction, wallet).await?
+        }
+        Instruction::CONTRACT(instruction) => {
+            let mut db = get_temp_db();
+            scaffold_contract_instruction(&mut db, instruction).await?;
+            (fuel_node, wallet) = start_node_with_db(db, None).await;
+            send_script_transaction(Instruction::CONTRACT(instruction), &wallet).await?
+        }
+        _ => {
+            (fuel_node, wallet) = start_node(None).await;
+            send_script_transaction(instruction, &wallet).await?
+        }
     };
 
     let service = generate_input_at_block_height(fuel_node, tx_inclusion_block_height).await?;
@@ -327,4 +350,5 @@ mod tests {
     contract_test!(CB);
     contract_test!(LOG);
     contract_test!(TIME);
+    contract_test!(BAL);
 }

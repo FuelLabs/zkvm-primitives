@@ -1,6 +1,12 @@
 use fuel_core::chain_config::{ChainConfig, StateConfig, TESTNET_WALLET_SECRETS};
+use fuel_core::combined_database::CombinedDatabase;
+use fuel_core::database::database_description::on_chain::OnChain;
+use fuel_core::database::{Database, RegularStage};
 use fuel_core::service::{Config, FuelService};
-use fuel_core::state::historical_rocksdb::StateRewindPolicy;
+use fuel_core::state::data_source::DataSource;
+use fuel_core::state::historical_rocksdb::description::Historical;
+use fuel_core::state::historical_rocksdb::{HistoricalRocksDB, StateRewindPolicy};
+use fuel_core::state::rocks_db::RocksDb;
 use fuel_core_executor::executor::{ExecutionInstance, ExecutionOptions};
 use fuel_core_storage::transactional::{AtomicView, HistoricalView};
 use fuel_core_types::fuel_crypto::SecretKey;
@@ -11,6 +17,7 @@ use fuel_zkvm_primitives_input_provider::storage_access_recorder::StorageAccessR
 use fuels::prelude::{Provider, WalletUnlocked};
 use std::net::SocketAddr;
 use std::path::Path;
+use std::sync::Arc;
 
 const CONSENSUS_PARAMETERS: &[u8] = include_bytes!("fixtures/test_consensus_parameters.json");
 
@@ -50,6 +57,40 @@ async fn get_wallet(socket: SocketAddr) -> WalletUnlocked {
         .expect("Unable to connect to provider");
 
     WalletUnlocked::new_from_private_key(secret_key, Some(provider))
+}
+
+pub fn get_temp_db() -> Database<OnChain> {
+    let db = RocksDb::<Historical<OnChain>>::default_open_temp(None).unwrap();
+    let historical_db = HistoricalRocksDB::new(db, StateRewindPolicy::RewindFullRange).unwrap();
+    let data = Arc::new(historical_db);
+    Database::from_storage(DataSource::new(data, RegularStage::default()))
+}
+
+pub async fn start_node_with_db(
+    db: Database<OnChain>,
+    consensus_parameters: Option<ConsensusParameters>,
+) -> (FuelService, WalletUnlocked) {
+    let mut consensus_parameters = consensus_parameters.unwrap_or_else(|| {
+        serde_json::from_slice::<ConsensusParameters>(CONSENSUS_PARAMETERS).expect("Invalid JSON")
+    });
+
+    let config = get_config(&mut consensus_parameters, Path::new("/tmp"));
+
+    let fuel_node = FuelService::from_combined_database(
+        CombinedDatabase::new(
+            db,
+            Default::default(),
+            Default::default(),
+            Default::default(),
+        ),
+        config,
+    )
+    .await
+    .unwrap();
+
+    let wallet = get_wallet(fuel_node.bound_address).await;
+
+    (fuel_node, wallet)
 }
 
 pub async fn start_node(
