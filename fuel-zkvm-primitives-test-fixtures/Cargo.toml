@@ -27,6 +27,7 @@ clap = { version = "^4.0", features = ["derive"], optional = true }
 enum-iterator = { version = "2.1.0", optional = true }
 which = "7.0.0"
 serde = { workspace = true, optional = true }
+primitive-types = "0.12.2"
 
 [build-dependencies]
 forc = "0.66.5"

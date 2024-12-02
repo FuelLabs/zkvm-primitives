@@ -3,17 +3,22 @@
 use crate::utils::{
     generate_input_at_block_height, get_temp_db, start_node, start_node_with_db, Service,
 };
+use fuel_core::database::balances::BalancesInitializer;
 use fuel_core::database::database_description::on_chain::OnChain;
+use fuel_core::database::state::StateInitializer;
 use fuel_core::database::Database;
 use fuel_core::service::{FuelService, SharedState};
 use fuel_core_storage::rand::prelude::StdRng;
 use fuel_core_storage::rand::{RngCore, SeedableRng};
 use fuel_core_storage::tables::{ContractsLatestUtxo, ContractsRawCode};
+use fuel_core_storage::vm_storage::IncreaseStorageKey;
 use fuel_core_storage::{StorageAsMut, StorageAsRef};
 use fuel_core_types::entities::contract::ContractUtxoInfo;
+use fuel_core_types::fuel_crypto;
+use fuel_core_types::fuel_tx::{AssetId, Bytes32};
 use fuel_zkvm_primitives_utils::vm::base::AsRepr;
 use fuel_zkvm_primitives_utils::vm::blob::BlobInstruction;
-use fuel_zkvm_primitives_utils::vm::contract::ContractInstruction;
+use fuel_zkvm_primitives_utils::vm::contract::{ContractInstruction, ContractMetadata};
 pub use fuel_zkvm_primitives_utils::vm::Instruction;
 use fuels::prelude::Contract;
 use fuels::{accounts::Account, prelude::WalletUnlocked, types::BlockHeight};
@@ -104,7 +109,7 @@ async fn send_blob_transaction(
         .await?
         .check(None)?;
 
-    send_script_transaction(Instruction::BLOB(instruction), &wallet).await
+    send_script_transaction(Instruction::BLOB(instruction), wallet).await
 }
 
 async fn scaffold_contract_instruction(
@@ -113,7 +118,12 @@ async fn scaffold_contract_instruction(
 ) -> anyhow::Result<()> {
     let contract_metadata = instruction.contract_metadata();
 
-    if let Some((contract_id, contract_bytecode)) = contract_metadata {
+    if let Some(ContractMetadata {
+        contract_id,
+        contract_bytecode,
+        state_size,
+    }) = contract_metadata
+    {
         db.storage_as_mut::<ContractsRawCode>()
             .insert(&contract_id, &contract_bytecode)?;
 
@@ -122,6 +132,41 @@ async fn scaffold_contract_instruction(
             .insert(&contract_id, &ContractUtxoInfo::default())?;
 
         // assets, storage
+        let mut storage_key = primitive_types::U256::zero();
+        let mut key_bytes = Bytes32::zeroed();
+
+        db.init_contract_state(
+            &contract_id,
+            (0..state_size).map(|_| {
+                storage_key.to_big_endian(key_bytes.as_mut());
+                storage_key.increase().unwrap();
+                (key_bytes, key_bytes.to_vec())
+            }),
+        )?;
+
+        let mut storage_key = primitive_types::U256::zero();
+        let mut sub_id = Bytes32::zeroed();
+        db.init_contract_balances(
+            &contract_id,
+            (0..state_size as u64).map(|k| {
+                storage_key.to_big_endian(sub_id.as_mut());
+
+                let asset = if k % 2 == 0 {
+                    let hasher = fuel_crypto::Hasher::default();
+                    AssetId::new(
+                        *hasher
+                            .chain(contract_id.as_slice())
+                            .chain(sub_id.as_slice())
+                            .finalize(),
+                    )
+                } else {
+                    let asset_id = AssetId::new(*sub_id);
+                    storage_key.increase().unwrap();
+                    asset_id
+                };
+                (asset, k / 2 + 1_000)
+            }),
+        )?;
     }
 
     Ok(())
@@ -353,10 +398,20 @@ mod tests {
     other_test!(FLAG);
 
     // Contract Tests. Compare the number with contract.rs
+    // the commented out ones are broken at the moment
     contract_test!(BHEI);
     contract_test!(BHSH);
     contract_test!(CB);
     contract_test!(LOG);
     contract_test!(TIME);
     contract_test!(BAL);
+    // contract_test!(BURN);
+    contract_test!(CCP);
+    // contract_test!(CROO);
+    contract_test!(CSIZ);
+    contract_test!(LDC);
+    contract_test!(LOGD);
+    // contract_test!(MINT);
+    // contract_test!(RETD);
+    // contract_test!(TR);
 }
