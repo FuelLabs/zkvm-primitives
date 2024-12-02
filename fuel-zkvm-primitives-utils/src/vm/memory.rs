@@ -107,10 +107,6 @@ impl AsRepr for MemoryInstruction {
         .into_iter()
         .collect()
     }
-
-    fn script_data(&self) -> Option<Vec<u8>> {
-        None
-    }
 }
 
 fn cfe() -> Vec<Instruction> {

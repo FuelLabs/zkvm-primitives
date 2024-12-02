@@ -6,11 +6,13 @@ use fuel_core_storage::rand::{RngCore, SeedableRng};
 use fuel_core_storage::StorageAsRef;
 use fuel_zkvm_primitives_utils::vm::base::AsRepr;
 use fuel_zkvm_primitives_utils::vm::blob::BlobInstruction;
+use fuel_zkvm_primitives_utils::vm::contract::ContractInstruction;
 pub use fuel_zkvm_primitives_utils::vm::Instruction;
 use fuels::prelude::Contract;
 use fuels::{accounts::Account, prelude::WalletUnlocked, types::BlockHeight};
 use fuels_core::types::transaction_builders::{
     Blob, BlobTransactionBuilder, BuildableTransaction, ScriptTransactionBuilder,
+    TransactionBuilder,
 };
 use fuels_core::types::tx_status::TxStatus;
 
@@ -21,10 +23,21 @@ async fn send_script_transaction(
     let script = instruction.repr();
     let script_data = instruction.script_data();
 
+    let additional_inputs = instruction.additional_inputs();
+    let additional_outputs = instruction.additional_outputs();
+
     let mut builder = ScriptTransactionBuilder::default().with_script(script);
 
     if let Some(script_data) = script_data {
         builder = builder.with_script_data(script_data);
+    }
+
+    if let Some(additional_inputs) = additional_inputs {
+        builder = builder.with_inputs(additional_inputs);
+    }
+
+    if let Some(additional_outputs) = additional_outputs {
+        builder = builder.with_outputs(additional_outputs);
     }
 
     wallet.add_witnesses(&mut builder)?;
@@ -86,6 +99,15 @@ async fn send_blob_transaction(
     send_script_transaction(Instruction::BLOB(instruction), &wallet).await
 }
 
+async fn send_contract_transaction(
+    instruction: ContractInstruction,
+    wallet: WalletUnlocked,
+) -> anyhow::Result<BlockHeight> {
+    let contract_bytecode = instruction.contract_data();
+    // insert contract into storage here and then call the script tx
+    send_script_transaction(Instruction::CONTRACT(instruction), &wallet).await
+}
+
 /// We should move this to test-helpers once zkvm-perf doesn't have a dep on it
 pub async fn start_node_with_transaction_and_produce_prover_input(
     instruction: Instruction,
@@ -94,6 +116,7 @@ pub async fn start_node_with_transaction_and_produce_prover_input(
 
     let tx_inclusion_block_height = match instruction {
         Instruction::BLOB(instruction) => send_blob_transaction(instruction, wallet).await?,
+        // Instruction::CONTRACT(instruction) => send_contract_transaction(instruction, wallet).await?,
         _ => send_script_transaction(instruction, &wallet).await?,
     };
 

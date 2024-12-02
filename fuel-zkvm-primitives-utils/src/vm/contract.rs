@@ -1,6 +1,8 @@
 use crate::vm::base::AsRepr;
 use fuel_core_types::fuel_asm::{op, RegId};
 use fuel_core_types::fuel_types::Bytes32;
+use fuels::types::input::Input as TxInput;
+use fuels::types::output::Output as TxOutput;
 
 #[cfg_attr(
     feature = "enhanced_enums",
@@ -85,6 +87,14 @@ impl AsRepr for ContractInstruction {
 
     fn script_data(&self) -> Option<Vec<u8>> {
         None
+    }
+
+    fn additional_inputs(&self) -> Option<Vec<TxInput>> {
+        todo!()
+    }
+
+    fn additional_outputs(&self) -> Option<Vec<TxOutput>> {
+        todo!()
     }
 }
 

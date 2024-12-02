@@ -70,8 +70,4 @@ impl AsRepr for ControlInstruction {
         .into_iter()
         .collect()
     }
-
-    fn script_data(&self) -> Option<Vec<u8>> {
-        None
-    }
 }
