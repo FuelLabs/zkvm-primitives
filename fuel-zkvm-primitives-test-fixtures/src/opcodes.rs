@@ -15,13 +15,17 @@ use fuel_core_storage::vm_storage::IncreaseStorageKey;
 use fuel_core_storage::{StorageAsMut, StorageAsRef};
 use fuel_core_types::entities::contract::ContractUtxoInfo;
 use fuel_core_types::fuel_crypto;
-use fuel_core_types::fuel_tx::{AssetId, Bytes32};
+use fuel_core_types::fuel_tx::{AssetId, Bytes32, Executable};
 use fuel_zkvm_primitives_utils::vm::base::AsRepr;
 use fuel_zkvm_primitives_utils::vm::blob::BlobInstruction;
 use fuel_zkvm_primitives_utils::vm::contract::{ContractInstruction, ContractMetadata};
 pub use fuel_zkvm_primitives_utils::vm::Instruction;
 use fuels::prelude::Contract;
 use fuels::{accounts::Account, prelude::WalletUnlocked, types::BlockHeight};
+use fuels_core::types::coin::Coin;
+use fuels_core::types::coin_type::CoinType;
+use fuels_core::types::input::Input;
+use fuels_core::types::output::Output;
 use fuels_core::types::transaction_builders::{
     Blob, BlobTransactionBuilder, BuildableTransaction, ScriptTransactionBuilder,
     TransactionBuilder,
@@ -44,7 +48,10 @@ async fn send_script_transaction(
         builder = builder.with_script_data(script_data);
     }
 
-    if let Some(additional_inputs) = additional_inputs {
+    if let Some(mut additional_inputs) = additional_inputs {
+        let input_asset = wallet.get_asset_inputs_for_amount(*wallet.provider().unwrap().base_asset_id(), 0, None).await?;
+        additional_inputs.extend(input_asset.into_iter());
+
         builder = builder.with_inputs(additional_inputs);
     }
 
@@ -198,6 +205,21 @@ pub async fn start_node_with_transaction_and_produce_prover_input(
     };
 
     generate_input_at_block_height(fuel_node, tx_inclusion_block_height).await
+}
+
+// TODO: remove this when done debugging
+#[cfg(test)]
+mod local_tests {
+    use fuel_core_types::fuel_asm::PanicInstruction;
+    use fuels::types::Word;
+    use super::*;
+
+    #[test]
+    fn get_panic_readable() {
+        let r: Word = 160584292785717248u64;
+        let panic_readable = PanicInstruction::from(r);
+        println!("{panic_readable:?}");
+    }
 }
 
 #[allow(non_snake_case)]
