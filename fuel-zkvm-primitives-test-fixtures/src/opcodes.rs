@@ -438,5 +438,6 @@ mod tests {
     contract_test!(SRW);
     contract_test!(SRWQ);
     contract_test!(SCWQ);
-    contract_test!(SMO);
+    // contract_test!(SMO); predicate based, fails with OOG on fuels sdk side
+    contract_test!(CALL);
 }

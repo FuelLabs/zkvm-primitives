@@ -10,6 +10,7 @@ use fuel_core_types::fuel_asm::{op, GTFArgs, Instruction, RegId};
 use fuel_core_types::fuel_crypto::rand;
 use fuel_core_types::fuel_tx;
 use fuel_core_types::fuel_tx::Address;
+use fuel_core_types::fuel_types::bytes::WORD_SIZE;
 use fuel_core_types::fuel_types::Bytes32;
 use fuels::prelude::AssetId;
 use fuels::prelude::ContractId;
@@ -55,7 +56,7 @@ impl ContractInstructionMetadata {
         let contract_metadata = ContractMetadata {
             contract_id,
             contract_bytecode: contract_bytecode.into_iter().collect(),
-            state_size: 100_000,
+            state_size: 1_000_000,
             predicate_metadata: None,
         };
 
@@ -288,6 +289,19 @@ fn smo_metadata() -> &'static ContractInstructionMetadata {
     })
 }
 
+static CALL_METADATA: OnceLock<ContractInstructionMetadata> = OnceLock::new();
+
+fn call_metadata() -> &'static ContractInstructionMetadata {
+    CALL_METADATA.get_or_init(|| {
+        let mut contract_bytecode = std::iter::repeat(op::noop())
+            .take(ARBITRARY_INPUT as usize)
+            .collect::<Vec<_>>();
+        contract_bytecode.push(op::ret(0x10));
+
+        ContractInstructionMetadata::default_with_bytecode(contract_bytecode)
+    })
+}
+
 #[cfg_attr(
     feature = "enhanced_enums",
     derive(clap::ValueEnum, enum_iterator::Sequence)
@@ -299,7 +313,7 @@ pub enum ContractInstruction {
     BHEI,
     BHSH,
     BURN,
-    // CALL,
+    CALL,
     CB,
     CCP,
     CROO,
@@ -334,7 +348,7 @@ impl AsRepr for ContractInstruction {
                 op::jmpb(RegId::ZERO, 0),
             ],
             ContractInstruction::BURN => burn(),
-            // ContractInstruction::CALL => todo!(),
+            ContractInstruction::CALL => call(),
             ContractInstruction::CB => vec![
                 op::movi(0x10, Bytes32::LEN.try_into().unwrap()),
                 op::aloc(0x10),
@@ -389,6 +403,7 @@ impl AsRepr for ContractInstruction {
             ContractInstruction::SRWQ => Some(srwq_metadata().script_data.clone()),
             ContractInstruction::SCWQ => Some(scwq_metadata().script_data.clone()),
             ContractInstruction::SMO => Some(smo_metadata().script_data.clone()),
+            ContractInstruction::CALL => Some(call_metadata().script_data.clone()),
             _ => None,
         }
     }
@@ -410,6 +425,7 @@ impl AsRepr for ContractInstruction {
             ContractInstruction::SRWQ => Some(srwq_metadata().inputs.clone()),
             ContractInstruction::SCWQ => Some(scwq_metadata().inputs.clone()),
             ContractInstruction::SMO => Some(smo_metadata().inputs.clone()),
+            ContractInstruction::CALL => Some(call_metadata().inputs.clone()),
             _ => None,
         }
     }
@@ -431,6 +447,7 @@ impl AsRepr for ContractInstruction {
             ContractInstruction::SRWQ => Some(vec![srwq_metadata().output]),
             ContractInstruction::SCWQ => Some(vec![scwq_metadata().output]),
             ContractInstruction::SMO => Some(vec![smo_metadata().output]),
+            ContractInstruction::CALL => Some(vec![call_metadata().output]),
             _ => None,
         }
     }
@@ -469,6 +486,7 @@ impl ContractInstruction {
             ContractInstruction::SRWQ => Some(srwq_metadata().contract_metadata.clone()),
             ContractInstruction::SCWQ => Some(scwq_metadata().contract_metadata.clone()),
             ContractInstruction::SMO => Some(smo_metadata().contract_metadata.clone()),
+            ContractInstruction::CALL => Some(call_metadata().contract_metadata.clone()),
             _ => None,
         }
     }
@@ -610,4 +628,15 @@ fn smo() -> Vec<Instruction> {
     ]);
 
     instructions
+}
+
+fn call() -> Vec<Instruction> {
+    vec![
+        op::gtf_args(0x10, 0x00, GTFArgs::ScriptData),
+        op::addi(0x11, 0x10, ContractId::LEN.try_into().unwrap()),
+        op::addi(0x11, 0x11, WORD_SIZE.try_into().unwrap()),
+        op::addi(0x11, 0x11, WORD_SIZE.try_into().unwrap()),
+        op::call(0x10, RegId::ZERO, 0x11, RegId::CGAS),
+        op::jmpb(RegId::ZERO, 0),
+    ]
 }
