@@ -398,7 +398,9 @@ mod tests {
     other_test!(FLAG);
 
     // Contract Tests. Compare the number with contract.rs
-    // the commented out ones are broken at the moment
+    // the commented out ones are broken at the moment. they touch the
+    // asset_id, which is zeroed out, and because utxo_validation = true,
+    // we cannot seem to add unsigned coin to the input
     contract_test!(BHEI);
     contract_test!(BHSH);
     contract_test!(CB);
@@ -414,4 +416,6 @@ mod tests {
     // contract_test!(MINT);
     // contract_test!(RETD);
     // contract_test!(TR);
+    // contract_test!(SWW);
+    // contract_test!(SWWQ);
 }
