@@ -188,6 +188,36 @@ fn swwq_metadata() -> &'static ContractInstructionMetadata {
     })
 }
 
+static SRW_METADATA: OnceLock<ContractInstructionMetadata> = OnceLock::new();
+
+fn srw_metadata() -> &'static ContractInstructionMetadata {
+    SRW_METADATA.get_or_init(|| {
+        let contract_bytecode = u256_iterator_loop(|iterator| op::srw(0x13, 0x14, iterator));
+
+        ContractInstructionMetadata::default_with_bytecode(contract_bytecode)
+    })
+}
+
+static SRWQ_METADATA: OnceLock<ContractInstructionMetadata> = OnceLock::new();
+
+fn srwq_metadata() -> &'static ContractInstructionMetadata {
+    SRWQ_METADATA.get_or_init(|| {
+        let step = 10;
+        let mut contract_bytecode = vec![
+            op::movi(0x15, step),
+            op::movi(0x16, step * Bytes32::LEN as u32),
+            op::aloc(0x16),
+            op::move_(0x17, RegId::HP),
+        ];
+        contract_bytecode.extend(u256_iterator_loop_with_step(
+            |iterator| op::srwq(0x17, 0x13, iterator, 0x15),
+            step,
+        ));
+
+        ContractInstructionMetadata::default_with_bytecode(contract_bytecode)
+    })
+}
+
 #[cfg_attr(
     feature = "enhanced_enums",
     derive(clap::ValueEnum, enum_iterator::Sequence)
@@ -212,8 +242,8 @@ pub enum ContractInstruction {
     // RVRT, Skipped.
     // SMO,
     // SCWQ,
-    // SRW,
-    // SRWQ,
+    SRW,
+    SRWQ,
     SWW,
     SWWQ,
     TIME,
@@ -254,8 +284,8 @@ impl AsRepr for ContractInstruction {
             ContractInstruction::RETD => retd(),
             // ContractInstruction::SMO => todo!(),
             // ContractInstruction::SCWQ => todo!(),
-            // ContractInstruction::SRW => todo!(),
-            // ContractInstruction::SRWQ => todo!(),
+            ContractInstruction::SRW => srw(),
+            ContractInstruction::SRWQ => srwq(),
             ContractInstruction::SWW => sww(),
             ContractInstruction::SWWQ => swwq(),
             ContractInstruction::TIME => vec![
@@ -285,6 +315,8 @@ impl AsRepr for ContractInstruction {
             ContractInstruction::TR => Some(tr_metadata().script_data.clone()),
             ContractInstruction::SWW => Some(sww_metadata().script_data.clone()),
             ContractInstruction::SWWQ => Some(swwq_metadata().script_data.clone()),
+            ContractInstruction::SRW => Some(srw_metadata().script_data.clone()),
+            ContractInstruction::SRWQ => Some(srwq_metadata().script_data.clone()),
             _ => None,
         }
     }
@@ -302,6 +334,8 @@ impl AsRepr for ContractInstruction {
             ContractInstruction::TR => Some(vec![tr_metadata().input.clone()]),
             ContractInstruction::SWW => Some(vec![sww_metadata().input.clone()]),
             ContractInstruction::SWWQ => Some(vec![swwq_metadata().input.clone()]),
+            ContractInstruction::SRW => Some(vec![srw_metadata().input.clone()]),
+            ContractInstruction::SRWQ => Some(vec![srwq_metadata().input.clone()]),
             _ => None,
         }
     }
@@ -319,6 +353,8 @@ impl AsRepr for ContractInstruction {
             ContractInstruction::TR => Some(vec![tr_metadata().output]),
             ContractInstruction::SWW => Some(vec![sww_metadata().output]),
             ContractInstruction::SWWQ => Some(vec![swwq_metadata().output]),
+            ContractInstruction::SRW => Some(vec![srw_metadata().output]),
+            ContractInstruction::SRWQ => Some(vec![srwq_metadata().output]),
             _ => None,
         }
     }
@@ -345,6 +381,8 @@ impl ContractInstruction {
             ContractInstruction::TR => Some(tr_metadata().contract_metadata.clone()),
             ContractInstruction::SWW => Some(sww_metadata().contract_metadata.clone()),
             ContractInstruction::SWWQ => Some(swwq_metadata().contract_metadata.clone()),
+            ContractInstruction::SRW => Some(srw_metadata().contract_metadata.clone()),
+            ContractInstruction::SRWQ => Some(srwq_metadata().contract_metadata.clone()),
             _ => None,
         }
     }
@@ -455,4 +493,18 @@ fn swwq() -> Vec<Instruction> {
     let mut instructions = vec![op::movi(0x15, 10)];
     instructions.extend(call_contract_once());
     instructions
+}
+
+fn srw() -> Vec<Instruction> {
+    let mut instructions = setup_instructions();
+    instructions.extend(vec![
+        op::movi(0x15, 2000),
+        op::call(0x10, RegId::ZERO, 0x11, RegId::CGAS),
+    ]);
+
+    instructions
+}
+
+fn srwq() -> Vec<Instruction> {
+    call_contract_once()
 }

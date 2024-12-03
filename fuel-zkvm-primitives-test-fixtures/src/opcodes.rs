@@ -416,7 +416,9 @@ mod tests {
     contract_test!(LOGD);
     contract_test!(MINT);
     contract_test!(RETD);
-    // contract_test!(TR);
+    // contract_test!(TR); something up here
     contract_test!(SWW);
     contract_test!(SWWQ);
+    contract_test!(SRW);
+    contract_test!(SRWQ);
 }
