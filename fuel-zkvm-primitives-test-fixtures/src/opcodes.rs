@@ -62,7 +62,7 @@ async fn send_script_transaction(
     }
 
     wallet.add_witnesses(&mut builder)?;
-    wallet.adjust_for_fee(&mut builder, 0).await?;
+    // wallet.adjust_for_fee(&mut builder, 0).await?;
     let provider = wallet.provider().expect("No provider");
     let tx = builder.build(provider).await?;
 
