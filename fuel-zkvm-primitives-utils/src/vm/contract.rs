@@ -134,9 +134,7 @@ static MINT_METADATA: OnceLock<ContractInstructionMetadata> = OnceLock::new();
 
 fn mint_metadata() -> &'static ContractInstructionMetadata {
     MINT_METADATA.get_or_init(|| {
-        ContractInstructionMetadata::default_with_bytecode(u256_iterator_loop(|iterator| {
-            op::mint(RegId::ONE, iterator)
-        }))
+        ContractInstructionMetadata::default_with_bytecode(vec![op::mint(RegId::ONE, 10)])
     })
 }
 

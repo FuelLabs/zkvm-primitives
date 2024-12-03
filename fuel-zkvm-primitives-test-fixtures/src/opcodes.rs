@@ -49,7 +49,9 @@ async fn send_script_transaction(
     }
 
     if let Some(mut additional_inputs) = additional_inputs {
-        let input_asset = wallet.get_asset_inputs_for_amount(*wallet.provider().unwrap().base_asset_id(), 0, None).await?;
+        let input_asset = wallet
+            .get_asset_inputs_for_amount(*wallet.provider().unwrap().base_asset_id(), 0, None)
+            .await?;
         additional_inputs.extend(input_asset.into_iter());
 
         builder = builder.with_inputs(additional_inputs);
@@ -210,13 +212,13 @@ pub async fn start_node_with_transaction_and_produce_prover_input(
 // TODO: remove this when done debugging
 #[cfg(test)]
 mod local_tests {
+    use super::*;
     use fuel_core_types::fuel_asm::PanicInstruction;
     use fuels::types::Word;
-    use super::*;
 
     #[test]
     fn get_panic_readable() {
-        let r: Word = 160584292785717248u64;
+        let r: Word = 156506684120891392 as u64;
         let panic_readable = PanicInstruction::from(r);
         println!("{panic_readable:?}");
     }
