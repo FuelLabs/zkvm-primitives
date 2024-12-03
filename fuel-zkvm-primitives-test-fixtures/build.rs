@@ -4,6 +4,7 @@ use forc::ops::forc_build;
 use std::path::Path;
 
 pub fn main() {
+    println!("cargo:rerun-if-changed=src/fixtures/counter_contract/src/main.sw");
     let base_path = Path::new("src/fixtures/counter_contract");
     let out_dir = base_path.join("out");
     let out_bin = out_dir.join("counter_contract.bin");

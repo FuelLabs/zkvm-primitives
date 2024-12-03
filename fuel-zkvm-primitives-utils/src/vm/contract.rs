@@ -11,6 +11,7 @@ use fuels::prelude::AssetId;
 use fuels::prelude::ContractId;
 use fuels::types::input::Input as TxInput;
 use fuels::types::output::Output as TxOutput;
+use std::str::FromStr;
 use std::sync::OnceLock;
 
 const ARBITRARY_INPUT: u32 = 10_000;
@@ -26,7 +27,11 @@ struct ContractInstructionMetadata {
 
 impl ContractInstructionMetadata {
     fn default_with_bytecode(contract_bytecode: Vec<Instruction>) -> Self {
-        let contract_id = ContractId::zeroed();
+        // if you set this to 0, IT WILL BREAK
+        let contract_id = ContractId::from_str(
+            "0xdeadbeef3d7fa5b672b530cbb84fcccb4ff8dc40f8176ef4544ddb1fdeadbeef",
+        )
+        .unwrap();
         let asset_id = AssetId::zeroed();
 
         let input = TxInput::Contract {
@@ -44,7 +49,7 @@ impl ContractInstructionMetadata {
         let contract_metadata = ContractMetadata {
             contract_id,
             contract_bytecode: contract_bytecode.into_iter().collect(),
-            state_size: 10_000,
+            state_size: 100_000,
         };
 
         ContractInstructionMetadata {

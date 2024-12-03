@@ -48,12 +48,7 @@ async fn send_script_transaction(
         builder = builder.with_script_data(script_data);
     }
 
-    if let Some(mut additional_inputs) = additional_inputs {
-        let input_asset = wallet
-            .get_asset_inputs_for_amount(*wallet.provider().unwrap().base_asset_id(), 0, None)
-            .await?;
-        additional_inputs.extend(input_asset.into_iter());
-
+    if let Some(additional_inputs) = additional_inputs {
         builder = builder.with_inputs(additional_inputs);
     }
 
@@ -62,7 +57,7 @@ async fn send_script_transaction(
     }
 
     wallet.add_witnesses(&mut builder)?;
-    // wallet.adjust_for_fee(&mut builder, 0).await?;
+    wallet.adjust_for_fee(&mut builder, 0).await?;
     let provider = wallet.provider().expect("No provider");
     let tx = builder.build(provider).await?;
 
@@ -207,21 +202,6 @@ pub async fn start_node_with_transaction_and_produce_prover_input(
     };
 
     generate_input_at_block_height(fuel_node, tx_inclusion_block_height).await
-}
-
-// TODO: remove this when done debugging
-#[cfg(test)]
-mod local_tests {
-    use super::*;
-    use fuel_core_types::fuel_asm::PanicInstruction;
-    use fuels::types::Word;
-
-    #[test]
-    fn get_panic_readable() {
-        let r: Word = 156506684120891392 as u64;
-        let panic_readable = PanicInstruction::from(r);
-        println!("{panic_readable:?}");
-    }
 }
 
 #[allow(non_snake_case)]
@@ -422,24 +402,21 @@ mod tests {
     other_test!(FLAG);
 
     // Contract Tests. Compare the number with contract.rs
-    // the commented out ones are broken at the moment. they touch the
-    // asset_id, which is zeroed out, and because utxo_validation = true,
-    // we cannot seem to add unsigned coin to the input
     contract_test!(BHEI);
     contract_test!(BHSH);
     contract_test!(CB);
     contract_test!(LOG);
     contract_test!(TIME);
     contract_test!(BAL);
-    // contract_test!(BURN);
+    contract_test!(BURN);
     contract_test!(CCP);
     contract_test!(CROO);
     contract_test!(CSIZ);
     contract_test!(LDC);
     contract_test!(LOGD);
-    // contract_test!(MINT);
-    // contract_test!(RETD);
+    contract_test!(MINT);
+    contract_test!(RETD);
     // contract_test!(TR);
-    // contract_test!(SWW);
-    // contract_test!(SWWQ);
+    contract_test!(SWW);
+    contract_test!(SWWQ);
 }
