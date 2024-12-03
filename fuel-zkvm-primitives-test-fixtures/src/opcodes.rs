@@ -421,4 +421,5 @@ mod tests {
     contract_test!(SWWQ);
     contract_test!(SRW);
     contract_test!(SRWQ);
+    contract_test!(SCWQ);
 }
