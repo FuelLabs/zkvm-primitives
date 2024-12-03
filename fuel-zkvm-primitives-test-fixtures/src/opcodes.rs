@@ -10,12 +10,14 @@ use fuel_core::database::Database;
 use fuel_core::service::{FuelService, SharedState};
 use fuel_core_storage::rand::prelude::StdRng;
 use fuel_core_storage::rand::{RngCore, SeedableRng};
-use fuel_core_storage::tables::{ContractsLatestUtxo, ContractsRawCode};
+use fuel_core_storage::tables::{Coins, ContractsLatestUtxo, ContractsRawCode};
 use fuel_core_storage::vm_storage::IncreaseStorageKey;
 use fuel_core_storage::{StorageAsMut, StorageAsRef};
+use fuel_core_types::entities::coins::coin::{CompressedCoin, CompressedCoinV1};
 use fuel_core_types::entities::contract::ContractUtxoInfo;
 use fuel_core_types::fuel_crypto;
 use fuel_core_types::fuel_tx::{AssetId, Bytes32, Executable};
+use fuel_core_types::fuel_types::Address;
 use fuel_zkvm_primitives_utils::vm::base::AsRepr;
 use fuel_zkvm_primitives_utils::vm::blob::BlobInstruction;
 use fuel_zkvm_primitives_utils::vm::contract::{ContractInstruction, ContractMetadata};
@@ -126,6 +128,7 @@ async fn scaffold_contract_instruction(
         contract_id,
         contract_bytecode,
         state_size,
+        predicate_metadata,
     }) = contract_metadata
     {
         db.storage_as_mut::<ContractsRawCode>()
@@ -171,6 +174,19 @@ async fn scaffold_contract_instruction(
                 (asset, k / 2 + 1_000)
             }),
         )?;
+
+        if let Some(predicate_metadata) = predicate_metadata {
+            // insert into coins table
+            db.storage_as_mut::<Coins>().insert(
+                &predicate_metadata.predicate_utxo_id,
+                &CompressedCoin::V1(CompressedCoinV1 {
+                    owner: Address::from(predicate_metadata.predicate_owner),
+                    amount: predicate_metadata.coin_amount,
+                    asset_id: AssetId::zeroed(),
+                    tx_pointer: Default::default(),
+                }),
+            )?;
+        }
     }
 
     Ok(())
@@ -422,4 +438,5 @@ mod tests {
     contract_test!(SRW);
     contract_test!(SRWQ);
     contract_test!(SCWQ);
+    contract_test!(SMO);
 }

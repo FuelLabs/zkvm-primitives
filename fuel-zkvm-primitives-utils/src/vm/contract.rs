@@ -5,12 +5,18 @@ use crate::vm::contract::utils::{
     call_contract_once, call_contract_repeat, script_data, setup_instructions, u256_iterator_loop,
     u256_iterator_loop_with_step,
 };
+use fuel_core::chain_config::Randomize;
 use fuel_core_types::fuel_asm::{op, GTFArgs, Instruction, RegId};
+use fuel_core_types::fuel_crypto::rand;
+use fuel_core_types::fuel_tx;
+use fuel_core_types::fuel_tx::Address;
 use fuel_core_types::fuel_types::Bytes32;
 use fuels::prelude::AssetId;
 use fuels::prelude::ContractId;
+use fuels::tx::UtxoId;
 use fuels::types::input::Input as TxInput;
 use fuels::types::output::Output as TxOutput;
+use fuels_core::types::{bech32::Bech32Address, coin::Coin, coin_type::CoinType, input::Input};
 use std::str::FromStr;
 use std::sync::OnceLock;
 
@@ -21,7 +27,7 @@ struct ContractInstructionMetadata {
     #[allow(unused)]
     asset_id: AssetId,
     script_data: Vec<u8>,
-    input: TxInput,
+    inputs: Vec<TxInput>,
     output: TxOutput,
 }
 
@@ -50,13 +56,14 @@ impl ContractInstructionMetadata {
             contract_id,
             contract_bytecode: contract_bytecode.into_iter().collect(),
             state_size: 100_000,
+            predicate_metadata: None,
         };
 
         ContractInstructionMetadata {
             contract_metadata,
             asset_id,
             script_data,
-            input,
+            inputs: vec![input],
             output,
         }
     }
@@ -229,6 +236,58 @@ fn scwq_metadata() -> &'static ContractInstructionMetadata {
     })
 }
 
+static SMO_METADATA: OnceLock<ContractInstructionMetadata> = OnceLock::new();
+
+fn smo_metadata() -> &'static ContractInstructionMetadata {
+    SMO_METADATA.get_or_init(|| {
+        let contract_bytecode = vec![
+            op::gtf_args(0x15, 0x00, GTFArgs::ScriptData),
+            // Offset 32 + 8 + 8 + 32
+            op::addi(0x15, 0x15, 32 + 8 + 8 + 32), // target address pointer
+            op::addi(0x16, 0x15, 32),              // data ppinter
+            op::movi(0x17, 100),                   // data length
+            op::smo(0x15, 0x16, 0x17, 0x18),
+            op::jmpb(RegId::ZERO, 0),
+        ];
+
+        let mut metadata = ContractInstructionMetadata::default_with_bytecode(contract_bytecode);
+
+        metadata.script_data.extend(
+            Address::new([1u8; 32])
+                .iter()
+                .copied()
+                .chain(vec![2u8; 100]),
+        );
+
+        let predicate_code = op::ret(RegId::ONE).to_bytes().to_vec();
+        let predicate_owner =
+            Bech32Address::from(fuel_tx::input::Input::predicate_owner(&predicate_code));
+        let predicate_utxo_id = UtxoId::randomize(&mut rand::thread_rng());
+        let coin_amount = 1_000_000;
+        let predicate_input = Input::resource_predicate(
+            CoinType::Coin(Coin {
+                amount: coin_amount,
+                asset_id: metadata.asset_id,
+                owner: predicate_owner.clone(),
+                utxo_id: predicate_utxo_id,
+                ..Default::default()
+            }),
+            predicate_code,
+            vec![],
+        );
+
+        metadata.contract_metadata.predicate_metadata = Some(PredicateMetadata {
+            predicate_utxo_id,
+            predicate_owner,
+            coin_amount: 1_000_000,
+        });
+
+        metadata.inputs.push(predicate_input);
+
+        metadata
+    })
+}
+
 #[cfg_attr(
     feature = "enhanced_enums",
     derive(clap::ValueEnum, enum_iterator::Sequence)
@@ -251,7 +310,7 @@ pub enum ContractInstruction {
     MINT,
     RETD,
     // RVRT, Skipped.
-    // SMO,
+    SMO,
     SCWQ,
     SRW,
     SRWQ,
@@ -293,7 +352,7 @@ impl AsRepr for ContractInstruction {
             ContractInstruction::LOGD => logd(),
             ContractInstruction::MINT => mint(),
             ContractInstruction::RETD => retd(),
-            // ContractInstruction::SMO => todo!(),
+            ContractInstruction::SMO => smo(),
             ContractInstruction::SCWQ => scwq(),
             ContractInstruction::SRW => srw(),
             ContractInstruction::SRWQ => srwq(),
@@ -329,26 +388,28 @@ impl AsRepr for ContractInstruction {
             ContractInstruction::SRW => Some(srw_metadata().script_data.clone()),
             ContractInstruction::SRWQ => Some(srwq_metadata().script_data.clone()),
             ContractInstruction::SCWQ => Some(scwq_metadata().script_data.clone()),
+            ContractInstruction::SMO => Some(smo_metadata().script_data.clone()),
             _ => None,
         }
     }
 
     fn additional_inputs(&self) -> Option<Vec<TxInput>> {
         match &self {
-            ContractInstruction::BAL => Some(vec![bal_metadata().input.clone()]),
-            ContractInstruction::BURN => Some(vec![burn_metadata().input.clone()]),
-            ContractInstruction::CCP => Some(vec![ccp_metadata().input.clone()]),
-            ContractInstruction::CROO => Some(vec![croo_metadata().input.clone()]),
-            ContractInstruction::CSIZ => Some(vec![csiz_metadata().input.clone()]),
-            ContractInstruction::LDC => Some(vec![ldc_metadata().input.clone()]),
-            ContractInstruction::MINT => Some(vec![mint_metadata().input.clone()]),
-            ContractInstruction::RETD => Some(vec![retd_metadata().input.clone()]),
-            ContractInstruction::TR => Some(vec![tr_metadata().input.clone()]),
-            ContractInstruction::SWW => Some(vec![sww_metadata().input.clone()]),
-            ContractInstruction::SWWQ => Some(vec![swwq_metadata().input.clone()]),
-            ContractInstruction::SRW => Some(vec![srw_metadata().input.clone()]),
-            ContractInstruction::SRWQ => Some(vec![srwq_metadata().input.clone()]),
-            ContractInstruction::SCWQ => Some(vec![scwq_metadata().input.clone()]),
+            ContractInstruction::BAL => Some(bal_metadata().inputs.clone()),
+            ContractInstruction::BURN => Some(burn_metadata().inputs.clone()),
+            ContractInstruction::CCP => Some(ccp_metadata().inputs.clone()),
+            ContractInstruction::CROO => Some(croo_metadata().inputs.clone()),
+            ContractInstruction::CSIZ => Some(csiz_metadata().inputs.clone()),
+            ContractInstruction::LDC => Some(ldc_metadata().inputs.clone()),
+            ContractInstruction::MINT => Some(mint_metadata().inputs.clone()),
+            ContractInstruction::RETD => Some(retd_metadata().inputs.clone()),
+            ContractInstruction::TR => Some(tr_metadata().inputs.clone()),
+            ContractInstruction::SWW => Some(sww_metadata().inputs.clone()),
+            ContractInstruction::SWWQ => Some(swwq_metadata().inputs.clone()),
+            ContractInstruction::SRW => Some(srw_metadata().inputs.clone()),
+            ContractInstruction::SRWQ => Some(srwq_metadata().inputs.clone()),
+            ContractInstruction::SCWQ => Some(scwq_metadata().inputs.clone()),
+            ContractInstruction::SMO => Some(smo_metadata().inputs.clone()),
             _ => None,
         }
     }
@@ -369,9 +430,17 @@ impl AsRepr for ContractInstruction {
             ContractInstruction::SRW => Some(vec![srw_metadata().output]),
             ContractInstruction::SRWQ => Some(vec![srwq_metadata().output]),
             ContractInstruction::SCWQ => Some(vec![scwq_metadata().output]),
+            ContractInstruction::SMO => Some(vec![smo_metadata().output]),
             _ => None,
         }
     }
+}
+
+#[derive(Clone)]
+pub struct PredicateMetadata {
+    pub predicate_utxo_id: UtxoId,
+    pub predicate_owner: Bech32Address,
+    pub coin_amount: u64,
 }
 
 #[derive(Clone)]
@@ -379,6 +448,7 @@ pub struct ContractMetadata {
     pub contract_id: ContractId,
     pub contract_bytecode: Vec<u8>,
     pub state_size: usize,
+    pub predicate_metadata: Option<PredicateMetadata>,
 }
 
 impl ContractInstruction {
@@ -398,6 +468,7 @@ impl ContractInstruction {
             ContractInstruction::SRW => Some(srw_metadata().contract_metadata.clone()),
             ContractInstruction::SRWQ => Some(srwq_metadata().contract_metadata.clone()),
             ContractInstruction::SCWQ => Some(scwq_metadata().contract_metadata.clone()),
+            ContractInstruction::SMO => Some(smo_metadata().contract_metadata.clone()),
             _ => None,
         }
     }
@@ -527,6 +598,16 @@ fn srwq() -> Vec<Instruction> {
 fn scwq() -> Vec<Instruction> {
     let mut instructions = vec![op::movi(0x15, 10)];
     instructions.extend(call_contract_once());
+
+    instructions
+}
+
+fn smo() -> Vec<Instruction> {
+    let mut instructions = setup_instructions();
+    instructions.extend(vec![
+        op::movi(0x18, 1), // coins to send
+        op::call(0x10, 0x12, 0x11, RegId::CGAS),
+    ]);
 
     instructions
 }
