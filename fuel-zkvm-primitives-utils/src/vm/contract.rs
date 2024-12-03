@@ -91,16 +91,16 @@ static CROO_METADATA: OnceLock<ContractInstructionMetadata> = OnceLock::new();
 
 fn croo_metadata() -> &'static ContractInstructionMetadata {
     CROO_METADATA.get_or_init(|| {
-        let contract_bytecode = vec![
-            op::gtf_args(0x16, 0x00, GTFArgs::ScriptData),
-            op::movi(0x15, 32),
-            op::aloc(0x15),
-            op::move_(0x14, RegId::HP),
-            op::croo(0x14, 0x16),
-            op::ret(RegId::ZERO),
-        ];
+        let contract_bytecode = vec![op::noop(); ARBITRARY_INPUT as usize];
 
-        ContractInstructionMetadata::default_with_bytecode(contract_bytecode)
+        let mut metadata = ContractInstructionMetadata::default_with_bytecode(contract_bytecode);
+        metadata.script_data = metadata
+            .contract_metadata
+            .contract_id
+            .iter()
+            .copied()
+            .collect();
+        metadata
     })
 }
 
@@ -376,7 +376,14 @@ fn ccp() -> Vec<Instruction> {
 }
 
 fn croo() -> Vec<Instruction> {
-    call_contract_repeat()
+    vec![
+        op::gtf_args(0x16, 0x00, GTFArgs::ScriptData),
+        op::movi(0x15, 2000),
+        op::aloc(0x15),
+        op::move_(0x14, RegId::HP),
+        op::croo(0x14, 0x16),
+        op::jmpb(RegId::ZERO, 0),
+    ]
 }
 
 fn csiz() -> Vec<Instruction> {

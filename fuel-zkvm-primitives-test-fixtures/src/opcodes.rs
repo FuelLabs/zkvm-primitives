@@ -409,7 +409,7 @@ mod tests {
     contract_test!(BAL);
     // contract_test!(BURN);
     contract_test!(CCP);
-    // contract_test!(CROO);
+    contract_test!(CROO);
     contract_test!(CSIZ);
     contract_test!(LDC);
     contract_test!(LOGD);
