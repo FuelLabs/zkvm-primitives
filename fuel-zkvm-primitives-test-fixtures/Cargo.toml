@@ -12,6 +12,7 @@ fuel-zkvm-primitives-prover = { path = "../fuel-zkvm-primitives-prover" }
 fuel-zkvm-primitives-utils = { path = "../fuel-zkvm-primitives-utils" }
 serde = { workspace = true, optional = true }
 tokio = { workspace = true }
+include_dir = "0.7.4"
 
 [build-dependencies]
 anyhow = { workspace = true }

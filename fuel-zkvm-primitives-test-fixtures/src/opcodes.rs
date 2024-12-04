@@ -1,15 +1,13 @@
-#![allow(unused)]
-
 pub use fuel_zkvm_primitives_utils::vm::Instruction;
-use std::env;
-use std::path::{Path, PathBuf};
+use include_dir::{include_dir, Dir};
+
+static OPCODES_FIXTURES: Dir = include_dir!("$CARGO_MANIFEST_DIR/src/fixtures/opcodes");
 
 pub fn get_opcode_input(instruction: Instruction) -> Vec<u8> {
-    let crate_dir = env::var("CARGO_MANIFEST_DIR").unwrap_or_else(|_| ".".to_string());
-    let mut path = PathBuf::from(crate_dir);
-    path.push(format!("src/fixtures/opcodes/{:?}.bin", instruction));
-
-    let serialized_input = std::fs::read(path).unwrap();
+    let file = OPCODES_FIXTURES
+        .get_file(format!("{instruction:?}.bin"))
+        .unwrap();
+    let serialized_input = file.contents().to_vec();
 
     serialized_input
 }
