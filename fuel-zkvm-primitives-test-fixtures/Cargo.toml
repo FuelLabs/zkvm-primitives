@@ -2,10 +2,26 @@
 name = "fuel-zkvm-primitives-test-fixtures"
 version = "0.1.0"
 edition = "2021"
+build = "build/main.rs"
 
 [dependencies]
 anyhow = { workspace = true }
 bincode = { workspace = true }
+fuel-zkvm-primitives-input-provider = { path = "../fuel-zkvm-primitives-input-provider" }
+fuel-zkvm-primitives-prover = { path = "../fuel-zkvm-primitives-prover" }
+fuel-zkvm-primitives-utils = { path = "../fuel-zkvm-primitives-utils" }
+tokio = { workspace = true }
+clap = { version = "^4.0", features = ["derive"], optional = true }
+enum-iterator = { version = "2.1.0", optional = true }
+which = "7.0.0"
+serde = { workspace = true, optional = true }
+futures = "0.3.31"
+
+[build-dependencies]
+forc = "0.66.5"
+fuel-core-types = { workspace = true }
+fuels = {workspace = true}
+fuels-core = {workspace = true}
 fuel-core = { version = "0.40.0", features = [
   "rocksdb",
   "wasm-executor",
@@ -14,23 +30,15 @@ fuel-core = { version = "0.40.0", features = [
 ] }
 fuel-core-executor = { workspace = true }
 fuel-core-storage = { workspace = true }
-fuel-core-types = { workspace = true }
-fuels = "0.66.10"
-fuels-core = "0.66.10"
 fuel-zkvm-primitives-input-provider = { path = "../fuel-zkvm-primitives-input-provider" }
 fuel-zkvm-primitives-prover = { path = "../fuel-zkvm-primitives-prover" }
-fuel-zkvm-primitives-utils = { path = "../fuel-zkvm-primitives-utils" }
+fuel-zkvm-primitives-utils = { path = "../fuel-zkvm-primitives-utils", features = ["enhanced_enums", "serde"] }
 serde_json = { version = "1", default-features = false }
 tempfile = "3.14.0"
-tokio = { workspace = true }
-clap = { version = "^4.0", features = ["derive"], optional = true }
-enum-iterator = { version = "2.1.0", optional = true }
-which = "7.0.0"
-serde = { workspace = true, optional = true }
+anyhow = { workspace = true }
+bincode = { workspace = true }
+tokio = {workspace = true}
 primitive-types = "0.12.2"
-
-[build-dependencies]
-forc = "0.66.5"
 
 [dev-dependencies]
 paste = "1.0"

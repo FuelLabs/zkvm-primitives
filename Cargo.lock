@@ -3633,6 +3633,7 @@ dependencies = [
  "fuel-zkvm-primitives-utils",
  "fuels",
  "fuels-core",
+ "futures",
  "paste",
  "primitive-types",
  "serde",

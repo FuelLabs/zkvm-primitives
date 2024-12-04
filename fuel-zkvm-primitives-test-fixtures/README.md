@@ -19,3 +19,13 @@ cargo test --lib counter_contract::tests
 ```shell
 cargo test --lib mainnet_blocks::tests
 ```
+
+## Refreshing serialized proof inputs
+
+If you update a dependency and don't seem to be detecting changes in behaviour in the tests, you have to refresh the build.
+
+```shell
+export REFRESH_BUILD=true
+# now any command ran will trigger the rebuild if necessary,
+cargo test --lib opcodes::tests
+```

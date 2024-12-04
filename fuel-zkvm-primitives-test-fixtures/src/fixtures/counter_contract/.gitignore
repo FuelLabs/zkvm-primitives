@@ -1,2 +1,3 @@
-out
 target
+out/counter_contract-storage_slots.json
+out/counter_contract.bin

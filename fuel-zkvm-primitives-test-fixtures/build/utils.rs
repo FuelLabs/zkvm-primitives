@@ -19,9 +19,11 @@ use std::net::SocketAddr;
 use std::path::Path;
 use std::sync::Arc;
 
-const CONSENSUS_PARAMETERS: &[u8] = include_bytes!("fixtures/test_consensus_parameters.json");
+const CONSENSUS_PARAMETERS: &[u8] =
+    include_bytes!("../src/fixtures/test_consensus_parameters.json");
 
 pub struct Service {
+    #[allow(dead_code)]
     pub fuel_node: FuelService,
     pub input: fuel_zkvm_primitives_prover::Input,
 }
