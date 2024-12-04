@@ -2,14 +2,15 @@
 
 pub use fuel_zkvm_primitives_utils::vm::Instruction;
 use std::env;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 pub fn get_opcode_input(instruction: Instruction) -> Vec<u8> {
-    let path = env::current_dir().unwrap();
-    path.join("fixtures")
-        .join("opcodes")
-        .join(format!("{:?}.bin", instruction));
+    let crate_dir = env::var("CARGO_MANIFEST_DIR").unwrap_or_else(|_| ".".to_string());
+    let mut path = PathBuf::from(crate_dir);
+    path.push(format!("src/fixtures/opcodes/{:?}.bin", instruction));
+
     let serialized_input = std::fs::read(path).unwrap();
+
     serialized_input
 }
 
@@ -26,7 +27,7 @@ mod tests {
     use fuel_zkvm_primitives_utils::vm::memory::MemoryInstruction;
     use fuel_zkvm_primitives_utils::vm::other::OtherInstruction;
 
-    async fn basic_opcode_test(instruction: Instruction) {
+    fn basic_opcode_test(instruction: Instruction) {
         let serialized_input = get_opcode_input(instruction);
         let deserialized_input = bincode::deserialize::<Input>(&serialized_input).unwrap();
         let proof = fuel_zkvm_primitives_prover::prove(&serialized_input).unwrap();
@@ -37,9 +38,9 @@ mod tests {
     macro_rules! alu_test {
         ($instruction:ident) => {
             paste::paste! {
-                #[tokio::test]
-                async fn [<test_alu_instruction_ $instruction:lower>]() {
-                    basic_opcode_test(Instruction::ALU(AluInstruction::$instruction)).await;
+                #[test]
+                fn [<test_alu_instruction_ $instruction:lower>]() {
+                    basic_opcode_test(Instruction::ALU(AluInstruction::$instruction));
                 }
             }
         };
@@ -48,9 +49,9 @@ mod tests {
     macro_rules! control_test {
         ($instruction:ident) => {
             paste::paste! {
-                #[tokio::test]
-                async fn [<test_ctrl_instruction_ $instruction:lower>]() {
-                    basic_opcode_test(Instruction::CTRL(ControlInstruction::$instruction)).await;
+                #[test]
+                fn [<test_ctrl_instruction_ $instruction:lower>]() {
+                    basic_opcode_test(Instruction::CTRL(ControlInstruction::$instruction));
                 }
             }
         };
@@ -59,9 +60,9 @@ mod tests {
     macro_rules! memory_test {
         ($instruction:ident) => {
             paste::paste! {
-                #[tokio::test]
-                async fn [<test_mem_instruction_ $instruction:lower>]() {
-                    basic_opcode_test(Instruction::MEM(MemoryInstruction::$instruction)).await;
+                #[test]
+                fn [<test_mem_instruction_ $instruction:lower>]() {
+                    basic_opcode_test(Instruction::MEM(MemoryInstruction::$instruction));
                 }
             }
         };
@@ -70,9 +71,9 @@ mod tests {
     macro_rules! blob_test {
         ($instruction:ident) => {
             paste::paste! {
-                #[tokio::test]
-                async fn [<test_blob_instruction_ $instruction:lower>]() {
-                    basic_opcode_test(Instruction::BLOB(BlobInstruction::$instruction)).await;
+                #[test]
+                fn [<test_blob_instruction_ $instruction:lower>]() {
+                    basic_opcode_test(Instruction::BLOB(BlobInstruction::$instruction));
                 }
             }
         };
@@ -81,9 +82,9 @@ mod tests {
     macro_rules! crypto_test {
         ($instruction:ident) => {
             paste::paste! {
-                #[tokio::test]
-                async fn [<test_crypto_instruction_ $instruction:lower>]() {
-                    basic_opcode_test(Instruction::CRYPTO(CryptoInstruction::$instruction)).await;
+                #[test]
+                fn [<test_crypto_instruction_ $instruction:lower>]() {
+                    basic_opcode_test(Instruction::CRYPTO(CryptoInstruction::$instruction));
                 }
             }
         };
@@ -92,9 +93,9 @@ mod tests {
     macro_rules! other_test {
         ($instruction:ident) => {
             paste::paste! {
-                #[tokio::test]
-                async fn [<test_other_instruction_ $instruction:lower>]() {
-                    basic_opcode_test(Instruction::OTHER(OtherInstruction::$instruction)).await;
+                #[test]
+                fn [<test_other_instruction_ $instruction:lower>]() {
+                    basic_opcode_test(Instruction::OTHER(OtherInstruction::$instruction));
                 }
             }
         };
@@ -103,9 +104,9 @@ mod tests {
     macro_rules! contract_test {
         ($instruction:ident) => {
             paste::paste! {
-                #[tokio::test]
-                async fn [<test_contract_instruction_ $instruction:lower>]() {
-                    basic_opcode_test(Instruction::CONTRACT(ContractInstruction::$instruction)).await;
+                #[test]
+                fn [<test_contract_instruction_ $instruction:lower>]() {
+                    basic_opcode_test(Instruction::CONTRACT(ContractInstruction::$instruction));
                 }
             }
         };
