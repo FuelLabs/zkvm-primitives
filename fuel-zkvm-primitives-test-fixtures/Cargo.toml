@@ -5,44 +5,43 @@ edition = "2021"
 build = "build/main.rs"
 
 [dependencies]
-anyhow = { workspace = true }
 bincode = { workspace = true }
-fuel-zkvm-primitives-input-provider = { path = "../fuel-zkvm-primitives-input-provider" }
-fuel-zkvm-primitives-prover = { path = "../fuel-zkvm-primitives-prover" }
-fuel-zkvm-primitives-utils = { path = "../fuel-zkvm-primitives-utils" }
-tokio = { workspace = true }
 clap = { version = "^4.0", features = ["derive"], optional = true }
 enum-iterator = { version = "2.1.0", optional = true }
-which = "7.0.0"
+fuel-zkvm-primitives-prover = { path = "../fuel-zkvm-primitives-prover" }
+fuel-zkvm-primitives-utils = { path = "../fuel-zkvm-primitives-utils" }
 serde = { workspace = true, optional = true }
+tokio = { workspace = true }
 
 [build-dependencies]
-forc = "0.66.5"
-fuel-core-types = { workspace = true }
-fuels = {workspace = true}
-fuels-core = {workspace = true}
-fuel-core = { version = "0.40.0", features = [
-  "rocksdb",
-  "wasm-executor",
-  "relayer",
-  "test-helpers",
-] }
-fuel-core-executor = { workspace = true }
-fuel-core-storage = { workspace = true }
-fuel-zkvm-primitives-input-provider = { path = "../fuel-zkvm-primitives-input-provider" }
-fuel-zkvm-primitives-prover = { path = "../fuel-zkvm-primitives-prover" }
-fuel-zkvm-primitives-utils = { path = "../fuel-zkvm-primitives-utils", features = ["enhanced_enums", "serde"] }
-serde_json = { version = "1", default-features = false }
-tempfile = "3.14.0"
 anyhow = { workspace = true }
 bincode = { workspace = true }
-tokio = {workspace = true}
-primitive-types = "0.12.2"
+forc = "0.66.5"
+fuel-core = { workspace = true }
+fuel-core-executor = { workspace = true }
+fuel-core-storage = { workspace = true }
+fuel-core-types = { workspace = true }
+fuel-zkvm-primitives-input-provider = { path = "../fuel-zkvm-primitives-input-provider" }
+fuel-zkvm-primitives-prover = { path = "../fuel-zkvm-primitives-prover" }
+fuel-zkvm-primitives-utils = { path = "../fuel-zkvm-primitives-utils", features = [
+  "enhanced_enums",
+  "serde",
+] }
+fuels = { workspace = true }
+fuels-core = { workspace = true }
 futures = "0.3.31"
+primitive-types = "0.12.2"
+serde_json = { version = "1", default-features = false }
+tempfile = "3.14.0"
+tokio = { workspace = true }
 
 [dev-dependencies]
 paste = "1.0"
 
 [features]
-enhanced_enums = ["fuel-zkvm-primitives-utils/enhanced_enums", "dep:enum-iterator", "dep:clap"]
+enhanced_enums = [
+  "fuel-zkvm-primitives-utils/enhanced_enums",
+  "dep:enum-iterator",
+  "dep:clap",
+]
 serde = ["dep:serde", "fuel-zkvm-primitives-utils/serde"]

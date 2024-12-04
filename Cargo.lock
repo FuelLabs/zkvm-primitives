@@ -3590,16 +3590,12 @@ dependencies = [
 name = "fuel-zkvm-primitives-input-provider"
 version = "0.1.0"
 dependencies = [
- "alloy-sol-types",
  "anyhow",
- "bincode",
  "fuel-core-executor",
  "fuel-core-relayer",
  "fuel-core-storage",
  "fuel-core-types 0.40.0",
  "fuel-zkvm-primitives-prover",
- "tempfile",
- "tokio",
 ]
 
 [[package]]
@@ -3640,32 +3636,22 @@ dependencies = [
  "serde_json",
  "tempfile",
  "tokio",
- "which 7.0.0",
 ]
 
 [[package]]
 name = "fuel-zkvm-primitives-utils"
 version = "0.1.0"
 dependencies = [
- "anyhow",
- "bincode",
  "clap",
  "ed25519-dalek",
  "enum-iterator 2.1.0",
  "ethnum",
- "fuel-core",
- "fuel-core-executor",
  "fuel-core-storage",
  "fuel-core-types 0.40.0",
- "fuel-zkvm-primitives-input-provider",
- "fuel-zkvm-primitives-prover",
  "fuels",
  "fuels-core",
  "p256",
  "serde",
- "serde_json",
- "tempfile",
- "tokio",
  "tracing",
  "tracing-subscriber",
 ]
@@ -3810,7 +3796,7 @@ dependencies = [
  "rand",
  "tempfile",
  "tokio",
- "which 6.0.3",
+ "which",
 ]
 
 [[package]]
@@ -9966,18 +9952,6 @@ name = "which"
 version = "6.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b4ee928febd44d98f2f459a4a79bd4d928591333a494a10a868418ac1b39cf1f"
-dependencies = [
- "either",
- "home",
- "rustix",
- "winsafe",
-]
-
-[[package]]
-name = "which"
-version = "7.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c9cad3279ade7346b96e38731a641d7343dd6a53d55083dd54eadfa5a1b38c6b"
 dependencies = [
  "either",
  "home",

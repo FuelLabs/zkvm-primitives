@@ -1,5 +1,10 @@
 [workspace]
-members = ["fuel-zkvm-primitives-input-provider", "fuel-zkvm-primitives-prover", "fuel-zkvm-primitives-test-fixtures", "fuel-zkvm-primitives-utils"]
+members = [
+  "fuel-zkvm-primitives-input-provider",
+  "fuel-zkvm-primitives-prover",
+  "fuel-zkvm-primitives-test-fixtures",
+  "fuel-zkvm-primitives-utils",
+]
 resolver = "2"
 
 [workspace.dependencies]
@@ -20,3 +25,9 @@ tokio = { version = "1.40.0", features = ["macros", "rt-multi-thread"] }
 serde = { version = "1", default-features = false, features = ["derive"] }
 fuels = "0.66.10"
 fuels-core = "0.66.10"
+fuel-core = { version = "0.40.0", features = [
+  "rocksdb",
+  "wasm-executor",
+  "relayer",
+  "test-helpers",
+] }

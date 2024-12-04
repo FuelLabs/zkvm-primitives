@@ -4,32 +4,18 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-anyhow = { workspace = true }
-bincode = { workspace = true }
-fuel-core = { version = "0.40.0", features = [
-  "rocksdb",
-  "wasm-executor",
-  "relayer",
-  "test-helpers",
-] }
-fuel-core-executor = { workspace = true }
-fuel-core-storage = { workspace = true }
+clap = { version = "^4.0", features = ["derive"], optional = true }
+ed25519-dalek = { version = "2.1.1", features = ["rand_core"] }
+enum-iterator = { version = "2.1.0", optional = true }
+ethnum = "1.3"
+fuel-core-storage = { workspace = true, features = ["test-helpers"] }
 fuel-core-types = { workspace = true }
 fuels = { workspace = true }
 fuels-core = { workspace = true }
-fuel-zkvm-primitives-input-provider = { path = "../fuel-zkvm-primitives-input-provider" }
-fuel-zkvm-primitives-prover = { path = "../fuel-zkvm-primitives-prover" }
-serde_json = { version = "1", default-features = false }
-tempfile = "3.14.0"
-tokio = { workspace = true }
+p256 = { version = "0.13.2", features = ["ecdsa-core"] }
+serde = { workspace = true, optional = true }
 tracing = { version = "0.1" }
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
-ethnum = "1.3"
-p256 = { version = "0.13.2", features = ["ecdsa-core"]}
-ed25519-dalek = { version = "2.1.1", features = ["rand_core"] }
-clap = { version = "^4.0", features = ["derive"], optional = true }
-enum-iterator = { version = "2.1.0", optional = true }
-serde = { workspace = true, optional = true }
 
 [features]
 enhanced_enums = ["dep:clap", "dep:enum-iterator"]

@@ -4,13 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-alloy-sol-types = { workspace = true }
 anyhow = { workspace = true }
-bincode = { workspace = true }
 fuel-core-executor = { workspace = true }
 fuel-core-relayer = { version = "0.40.0" }
 fuel-core-storage = { workspace = true }
 fuel-core-types = { workspace = true }
 fuel-zkvm-primitives-prover = { path = "../fuel-zkvm-primitives-prover" }
-tempfile = "3"
-tokio = { workspace = true }
