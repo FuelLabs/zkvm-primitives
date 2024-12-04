@@ -56,7 +56,7 @@ impl ContractInstructionMetadata {
         let contract_metadata = ContractMetadata {
             contract_id,
             contract_bytecode: contract_bytecode.into_iter().collect(),
-            state_size: 1_000_000,
+            state_size: 1_000,
             predicate_metadata: None,
         };
 
@@ -167,7 +167,7 @@ static TR_METADATA: OnceLock<ContractInstructionMetadata> = OnceLock::new();
 
 fn tr_metadata() -> &'static ContractInstructionMetadata {
     TR_METADATA.get_or_init(|| {
-        let contract_bytecode = u256_iterator_loop(|iterator| op::tr(0x15, 0x14, iterator));
+        let contract_bytecode = u256_iterator_loop(|iterator| op::tr(0x10, 0x14, iterator));
 
         ContractInstructionMetadata::default_with_bytecode(contract_bytecode)
     })
