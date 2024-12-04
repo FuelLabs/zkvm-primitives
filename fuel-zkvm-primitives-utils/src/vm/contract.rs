@@ -51,7 +51,7 @@ impl ContractInstructionMetadata {
         let contract_metadata = ContractMetadata {
             contract_id,
             contract_bytecode: contract_bytecode.into_iter().collect(),
-            state_size: 1_000,
+            state_size: 1_000_000,
         };
 
         ContractInstructionMetadata {
