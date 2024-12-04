@@ -1,9 +1,9 @@
 use crate::mainnet_blocks::{get_mainnet_block_input, MainnetBlocks};
+use crate::opcodes::get_opcode_input;
 use clap::builder::PossibleValue;
 use clap::ValueEnum;
 use fuel_zkvm_primitives_utils::vm::Instruction;
 use std::sync::OnceLock;
-use crate::opcodes::get_opcode_input;
 
 static FIXTURE_VARIANTS: OnceLock<Vec<Fixture>> = OnceLock::new();
 

@@ -1,11 +1,15 @@
 #![allow(unused)]
 
 pub use fuel_zkvm_primitives_utils::vm::Instruction;
+use std::env;
 use std::path::Path;
 
 pub fn get_opcode_input(instruction: Instruction) -> Vec<u8> {
-    let file_path = format!("src/fixtures/opcodes/{:?}.bin", instruction);
-    let serialized_input = std::fs::read(Path::new(&file_path)).unwrap();
+    let path = env::current_dir().unwrap();
+    path.join("fixtures")
+        .join("opcodes")
+        .join(format!("{:?}.bin", instruction));
+    let serialized_input = std::fs::read(path).unwrap();
     serialized_input
 }
 
