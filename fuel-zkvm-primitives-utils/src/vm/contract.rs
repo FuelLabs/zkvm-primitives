@@ -5,19 +5,14 @@ use crate::vm::contract::utils::{
     call_contract_once, call_contract_repeat, script_data, setup_instructions, u256_iterator_loop,
     u256_iterator_loop_with_step,
 };
-use fuel_core::chain_config::Randomize;
 use fuel_core_types::fuel_asm::{op, GTFArgs, Instruction, RegId};
-use fuel_core_types::fuel_crypto::rand;
-use fuel_core_types::fuel_tx;
 use fuel_core_types::fuel_tx::Address;
 use fuel_core_types::fuel_types::bytes::WORD_SIZE;
 use fuel_core_types::fuel_types::Bytes32;
 use fuels::prelude::AssetId;
 use fuels::prelude::ContractId;
-use fuels::tx::UtxoId;
 use fuels::types::input::Input as TxInput;
 use fuels::types::output::Output as TxOutput;
-use fuels_core::types::{bech32::Bech32Address, coin::Coin, coin_type::CoinType, input::Input};
 use std::str::FromStr;
 use std::sync::OnceLock;
 
@@ -57,7 +52,6 @@ impl ContractInstructionMetadata {
             contract_id,
             contract_bytecode: contract_bytecode.into_iter().collect(),
             state_size: 1_000,
-            predicate_metadata: None,
         };
 
         ContractInstructionMetadata {
@@ -260,31 +254,6 @@ fn smo_metadata() -> &'static ContractInstructionMetadata {
                 .chain(vec![2u8; 100]),
         );
 
-        let predicate_code = op::ret(RegId::ONE).to_bytes().to_vec();
-        let predicate_owner =
-            Bech32Address::from(fuel_tx::input::Input::predicate_owner(&predicate_code));
-        let predicate_utxo_id = UtxoId::randomize(&mut rand::thread_rng());
-        let coin_amount = 1_000_000;
-        let predicate_input = Input::resource_predicate(
-            CoinType::Coin(Coin {
-                amount: coin_amount,
-                asset_id: metadata.asset_id,
-                owner: predicate_owner.clone(),
-                utxo_id: predicate_utxo_id,
-                ..Default::default()
-            }),
-            predicate_code,
-            vec![],
-        );
-
-        metadata.contract_metadata.predicate_metadata = Some(PredicateMetadata {
-            predicate_utxo_id,
-            predicate_owner,
-            coin_amount: 1_000_000,
-        });
-
-        metadata.inputs.push(predicate_input);
-
         metadata
     })
 }
@@ -454,18 +423,10 @@ impl AsRepr for ContractInstruction {
 }
 
 #[derive(Clone)]
-pub struct PredicateMetadata {
-    pub predicate_utxo_id: UtxoId,
-    pub predicate_owner: Bech32Address,
-    pub coin_amount: u64,
-}
-
-#[derive(Clone)]
 pub struct ContractMetadata {
     pub contract_id: ContractId,
     pub contract_bytecode: Vec<u8>,
     pub state_size: usize,
-    pub predicate_metadata: Option<PredicateMetadata>,
 }
 
 impl ContractInstruction {

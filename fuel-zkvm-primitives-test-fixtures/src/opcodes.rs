@@ -128,7 +128,6 @@ async fn scaffold_contract_instruction(
         contract_id,
         contract_bytecode,
         state_size,
-        predicate_metadata,
     }) = contract_metadata
     {
         db.storage_as_mut::<ContractsRawCode>()
@@ -174,19 +173,6 @@ async fn scaffold_contract_instruction(
                 (asset, k / 2 + 1_000)
             }),
         )?;
-
-        if let Some(predicate_metadata) = predicate_metadata {
-            // insert into coins table
-            db.storage_as_mut::<Coins>().insert(
-                &predicate_metadata.predicate_utxo_id,
-                &CompressedCoin::V1(CompressedCoinV1 {
-                    owner: Address::from(predicate_metadata.predicate_owner),
-                    amount: predicate_metadata.coin_amount,
-                    asset_id: AssetId::zeroed(),
-                    tx_pointer: Default::default(),
-                }),
-            )?;
-        }
     }
 
     Ok(())
@@ -438,6 +424,6 @@ mod tests {
     contract_test!(SRW);
     contract_test!(SRWQ);
     contract_test!(SCWQ);
-    // contract_test!(SMO); predicate based, fails with OOG on fuels sdk side
+    contract_test!(SMO);
     contract_test!(CALL);
 }
