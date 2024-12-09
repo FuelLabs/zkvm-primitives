@@ -231,4 +231,8 @@ mod tests {
     contract_test!(SCWQ);
     contract_test!(SMO);
     contract_test!(CALL);
+
+    // special test cases
+    // this was generated with 30M gas limit by modifying test_consensus_parameters.json
+    contract_test!(SPECIAL_MEMORY_STACK_AND_HEAP_ALLOCS);
 }

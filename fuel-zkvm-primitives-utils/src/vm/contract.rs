@@ -271,6 +271,39 @@ fn call_metadata() -> &'static ContractInstructionMetadata {
     })
 }
 
+static SPECIAL_METADATA: OnceLock<ContractInstructionMetadata> = OnceLock::new();
+
+fn special_metadata() -> &'static ContractInstructionMetadata {
+    SPECIAL_METADATA.get_or_init(|| {
+        let step = 10;
+
+        let mut contract_bytecode = vec![
+            // 60 mb to bytes = 62914560 = 0x3C00000 ~= 65535 * 96 * 10
+            // can't seem to extend the call frame to 60mb, 30mb works
+            op::movi(0x23, 65_535),
+            op::muli(0x23, 0x23, 96),
+            op::muli(0x23, 0x23, 5),
+            // extend stack by 30 mb
+            op::cfe(0x23),
+            // alloc 30 mb on the heap
+            op::aloc(0x23),
+            // start srwq process
+            op::movi(0x15, step),
+            op::movi(0x16, step * Bytes32::LEN as u32),
+            op::aloc(0x16),
+            op::move_(0x17, RegId::HP),
+        ];
+
+        contract_bytecode.extend(u256_iterator_loop_with_step(
+            |iterator| op::srwq(0x17, 0x13, iterator, 0x15),
+            step,
+        ));
+
+        ContractInstructionMetadata::default_with_bytecode(contract_bytecode)
+    })
+}
+
+#[allow(non_camel_case_types)]
 #[cfg_attr(
     feature = "enhanced_enums",
     derive(clap::ValueEnum, enum_iterator::Sequence)
@@ -301,6 +334,7 @@ pub enum ContractInstruction {
     SWWQ,
     TIME,
     TR,
+    SPECIAL_MEMORY_STACK_AND_HEAP_ALLOCS,
     // TRO, Skipped.
 }
 
@@ -347,6 +381,9 @@ impl AsRepr for ContractInstruction {
                 op::jmpb(RegId::ZERO, 0),
             ],
             ContractInstruction::TR => tr(),
+            ContractInstruction::SPECIAL_MEMORY_STACK_AND_HEAP_ALLOCS => {
+                special_memory_stack_and_heap_allocs()
+            }
         }
         .into_iter()
         .collect()
@@ -373,6 +410,9 @@ impl AsRepr for ContractInstruction {
             ContractInstruction::SCWQ => Some(scwq_metadata().script_data.clone()),
             ContractInstruction::SMO => Some(smo_metadata().script_data.clone()),
             ContractInstruction::CALL => Some(call_metadata().script_data.clone()),
+            ContractInstruction::SPECIAL_MEMORY_STACK_AND_HEAP_ALLOCS => {
+                Some(special_metadata().script_data.clone())
+            }
             _ => None,
         }
     }
@@ -395,6 +435,9 @@ impl AsRepr for ContractInstruction {
             ContractInstruction::SCWQ => Some(scwq_metadata().inputs.clone()),
             ContractInstruction::SMO => Some(smo_metadata().inputs.clone()),
             ContractInstruction::CALL => Some(call_metadata().inputs.clone()),
+            ContractInstruction::SPECIAL_MEMORY_STACK_AND_HEAP_ALLOCS => {
+                Some(special_metadata().inputs.clone())
+            }
             _ => None,
         }
     }
@@ -417,6 +460,9 @@ impl AsRepr for ContractInstruction {
             ContractInstruction::SCWQ => Some(vec![scwq_metadata().output]),
             ContractInstruction::SMO => Some(vec![smo_metadata().output]),
             ContractInstruction::CALL => Some(vec![call_metadata().output]),
+            ContractInstruction::SPECIAL_MEMORY_STACK_AND_HEAP_ALLOCS => {
+                Some(vec![special_metadata().output])
+            }
             _ => None,
         }
     }
@@ -448,6 +494,9 @@ impl ContractInstruction {
             ContractInstruction::SCWQ => Some(scwq_metadata().contract_metadata.clone()),
             ContractInstruction::SMO => Some(smo_metadata().contract_metadata.clone()),
             ContractInstruction::CALL => Some(call_metadata().contract_metadata.clone()),
+            ContractInstruction::SPECIAL_MEMORY_STACK_AND_HEAP_ALLOCS => {
+                Some(special_metadata().contract_metadata.clone())
+            }
             _ => None,
         }
     }
@@ -600,4 +649,8 @@ fn call() -> Vec<Instruction> {
         op::call(0x10, RegId::ZERO, 0x11, RegId::CGAS),
         op::jmpb(RegId::ZERO, 0),
     ]
+}
+
+fn special_memory_stack_and_heap_allocs() -> Vec<Instruction> {
+    call_contract_once()
 }
