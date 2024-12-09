@@ -16,6 +16,7 @@ use fuel_zkvm_primitives_utils::vm::blob::BlobInstruction;
 use fuel_zkvm_primitives_utils::vm::contract::{ContractInstruction, ContractMetadata};
 use fuel_zkvm_primitives_utils::vm::{all_instructions, Instruction};
 use fuels::{accounts::Account, prelude::WalletUnlocked, types::BlockHeight};
+use fuels_core::types::transaction::Transaction;
 use fuels_core::types::transaction_builders::{
     Blob, BlobTransactionBuilder, BuildableTransaction, ScriptTransactionBuilder,
     TransactionBuilder,
@@ -52,18 +53,10 @@ async fn send_script_transaction(
     let provider = wallet.provider().expect("No provider");
     let tx = builder.build(provider).await?;
 
-    let tx_id = provider.send_transaction(tx).await?;
+    let tx_id = tx.id(provider.chain_id());
+    let tx_status = provider.send_transaction_and_await_commit(tx).await?;
 
-    // Sleep to await the transaction inclusion in off chain database.
-    tokio::time::sleep(std::time::Duration::from_secs(2)).await;
-
-    let tx = provider
-        .get_transaction_by_id(&tx_id)
-        .await
-        .expect("No transaction")
-        .expect("No transaction");
-
-    let revert_reason = match tx.status {
+    let revert_reason = match tx_status {
         TxStatus::Success { .. } => {
             return Err(anyhow::anyhow!("Transaction should have reverted"))
         }
@@ -78,6 +71,12 @@ async fn send_script_transaction(
     };
 
     assert_eq!(revert_reason, "OutOfGas");
+
+    let tx = provider
+        .get_transaction_by_id(&tx_id)
+        .await
+        .expect("no tx")
+        .expect("no tx");
 
     let inclusion_block_height = tx.block_height.expect("No block height");
 

@@ -279,13 +279,14 @@ fn special_metadata() -> &'static ContractInstructionMetadata {
 
         let mut contract_bytecode = vec![
             // 60 mb to bytes = 62914560 = 0x3C00000 ~= 65535 * 96 * 10
-            // can't seem to extend the call frame to 60mb, 30mb works
             op::movi(0x23, 65_535),
             op::muli(0x23, 0x23, 96),
-            op::muli(0x23, 0x23, 5),
-            // extend stack by 30 mb
+            op::muli(0x23, 0x23, 10),
+            // extend stack by 60 mb
             op::cfe(0x23),
-            // alloc 30 mb on the heap
+            // reduce stack by 60 mb
+            op::cfs(0x23),
+            // alloc 60 mb on the heap
             op::aloc(0x23),
             // start srwq process
             op::movi(0x15, step),
