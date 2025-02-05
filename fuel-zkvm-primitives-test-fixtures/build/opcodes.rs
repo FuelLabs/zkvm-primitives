@@ -15,6 +15,7 @@ use fuel_zkvm_primitives_utils::vm::base::AsRepr;
 use fuel_zkvm_primitives_utils::vm::blob::BlobInstruction;
 use fuel_zkvm_primitives_utils::vm::contract::{ContractInstruction, ContractMetadata};
 use fuel_zkvm_primitives_utils::vm::{all_instructions, Instruction};
+use fuels::accounts::ViewOnlyAccount;
 use fuels::{accounts::Account, prelude::WalletUnlocked, types::BlockHeight};
 use fuels_core::types::transaction::Transaction;
 use fuels_core::types::transaction_builders::{
@@ -53,7 +54,7 @@ async fn send_script_transaction(
     let provider = wallet.provider().expect("No provider");
     let tx = builder.build(provider).await?;
 
-    let tx_id = tx.id(provider.chain_id());
+    let tx_id = tx.id(provider.chain_info().await?.consensus_parameters.chain_id());
     let tx_status = provider.send_transaction_and_await_commit(tx).await?;
 
     let revert_reason = match tx_status {

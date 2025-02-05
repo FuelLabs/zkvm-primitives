@@ -62,7 +62,7 @@ async fn get_wallet(socket: SocketAddr) -> WalletUnlocked {
 }
 
 pub fn get_temp_db() -> Database<OnChain> {
-    let db = RocksDb::<Historical<OnChain>>::default_open_temp(None).unwrap();
+    let db = RocksDb::<Historical<OnChain>>::default_open_temp().unwrap();
     let historical_db = HistoricalRocksDB::new(db, StateRewindPolicy::RewindFullRange).unwrap();
     let data = Arc::new(historical_db);
     Database::from_storage(DataSource::new(data, RegularStage::default()))

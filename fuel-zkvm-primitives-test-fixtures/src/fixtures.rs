@@ -21,7 +21,7 @@ pub enum Fixture {
 impl Fixture {
     pub fn get_input_for_fixture(fixture: &Fixture) -> Vec<u8> {
         match fixture {
-            Fixture::MainnetBlock(block) => get_mainnet_block_input(block.clone()),
+            Fixture::MainnetBlock(block) => get_mainnet_block_input(*block),
             Fixture::Opcode(instruction) => get_opcode_input(instruction.clone()),
         }
     }
