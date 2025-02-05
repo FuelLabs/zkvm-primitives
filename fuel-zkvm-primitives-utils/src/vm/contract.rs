@@ -85,8 +85,10 @@ static CCP_METADATA: OnceLock<ContractInstructionMetadata> = OnceLock::new();
 
 fn ccp_metadata() -> &'static ContractInstructionMetadata {
     CCP_METADATA.get_or_init(|| {
+        let count = ARBITRARY_INPUT / 4 - 4;
+
         let contract_bytecode = std::iter::repeat(op::noop())
-            .take(ARBITRARY_INPUT as usize)
+            .take(count as usize)
             .chain(vec![op::ret(RegId::ZERO)])
             .collect();
 
@@ -128,8 +130,10 @@ static LDC_METADATA: OnceLock<ContractInstructionMetadata> = OnceLock::new();
 
 fn ldc_metadata() -> &'static ContractInstructionMetadata {
     LDC_METADATA.get_or_init(|| {
+        let count = ARBITRARY_INPUT / 4 - 4;
+
         let contract_bytecode = std::iter::repeat(op::noop())
-            .take(ARBITRARY_INPUT as usize)
+            .take(count as usize)
             .chain(vec![op::ret(RegId::ZERO)])
             .collect();
 
