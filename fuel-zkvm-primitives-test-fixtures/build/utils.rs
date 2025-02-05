@@ -14,6 +14,7 @@ use fuel_core_types::fuel_tx::{Bytes32, ConsensusParameters};
 use fuel_core_types::fuel_types::BlockHeight;
 use fuel_zkvm_primitives_input_provider::relayer_recorder::RelayerRecorder;
 use fuel_zkvm_primitives_input_provider::storage_access_recorder::StorageAccessRecorder;
+use fuel_zkvm_primitives_prover::games::block_execution_game;
 use fuels::prelude::{Provider, WalletUnlocked};
 use std::net::SocketAddr;
 use std::path::Path;
@@ -25,7 +26,7 @@ const CONSENSUS_PARAMETERS: &[u8] =
 pub struct Service {
     #[allow(dead_code)]
     pub fuel_node: FuelService,
-    pub input: fuel_zkvm_primitives_prover::Input,
+    pub input: block_execution_game::Input,
 }
 
 fn get_config(consensus_parameters: &mut ConsensusParameters, path: &Path) -> Config {
@@ -145,7 +146,7 @@ pub async fn generate_input_at_block_height(
         .expect("Block with transaction is not available");
     let _ = validator.validate_without_commit(&block)?;
 
-    let input = fuel_zkvm_primitives_prover::Input {
+    let input = block_execution_game::Input {
         block,
         storage: storage.into_changes(),
         relayer: relayer.into_prover_relayer(),

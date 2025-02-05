@@ -1,7 +1,7 @@
 #[allow(non_snake_case)]
 #[cfg(test)]
 mod tests {
-    use fuel_zkvm_primitives_prover::{prove, Input};
+    use fuel_zkvm_primitives_prover::games::block_execution_game::{prove, Input};
 
     #[tokio::test]
     async fn test_counter_contract__increment() {

@@ -16,7 +16,7 @@ pub fn get_opcode_input(instruction: Instruction) -> Vec<u8> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use fuel_zkvm_primitives_prover::Input;
+    use fuel_zkvm_primitives_prover::games::block_execution_game::{prove, Input};
     use fuel_zkvm_primitives_utils::vm::alu::AluInstruction;
     use fuel_zkvm_primitives_utils::vm::blob::BlobInstruction;
     use fuel_zkvm_primitives_utils::vm::contract::ContractInstruction;
@@ -28,7 +28,7 @@ mod tests {
     fn basic_opcode_test(instruction: Instruction) {
         let serialized_input = get_opcode_input(instruction);
         let deserialized_input = bincode::deserialize::<Input>(&serialized_input).unwrap();
-        let proof = fuel_zkvm_primitives_prover::prove(&serialized_input).unwrap();
+        let proof = prove(&serialized_input).unwrap();
         let block_id: [u8; 32] = deserialized_input.block.header().id().into();
         assert_eq!(block_id, proof.block_id.to_be_bytes())
     }

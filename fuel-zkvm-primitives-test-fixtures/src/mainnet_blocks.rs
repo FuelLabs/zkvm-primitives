@@ -36,7 +36,7 @@ pub fn get_mainnet_block_input(block: MainnetBlocks) -> Vec<u8> {
 mod tests {
     use super::*;
     use crate::mainnet_blocks::get_mainnet_block_input;
-    use fuel_zkvm_primitives_prover::{prove, Input};
+    use fuel_zkvm_primitives_prover::games::block_execution_game::{prove, Input};
 
     #[tokio::test]
     async fn test_mainnet_block_1522295() {

@@ -2,12 +2,13 @@ use fuel_core_executor::ports::RelayerPort;
 use fuel_core_relayer::storage::EventsHistory;
 use fuel_core_storage::{Error as StorageError, StorageAsRef, StorageInspect};
 use fuel_core_types::{blockchain::primitives::DaBlockHeight, services::relayer::Event};
+use fuel_zkvm_primitives_prover::games::block_execution_game::Relayer;
 use std::{cell::RefCell, sync::Arc};
 
 #[derive(Debug, Clone)]
 pub struct RelayerRecorder<S> {
     storage: S,
-    record: Arc<RefCell<fuel_zkvm_primitives_prover::Relayer>>,
+    record: Arc<RefCell<Relayer>>,
 }
 
 impl<S> RelayerRecorder<S> {
@@ -18,7 +19,7 @@ impl<S> RelayerRecorder<S> {
         }
     }
 
-    pub fn into_prover_relayer(self) -> fuel_zkvm_primitives_prover::Relayer {
+    pub fn into_prover_relayer(self) -> Relayer {
         self.record.borrow().clone()
     }
 }
