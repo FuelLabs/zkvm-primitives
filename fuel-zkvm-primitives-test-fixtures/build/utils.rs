@@ -6,7 +6,7 @@ use fuel_core::service::{Config, FuelService};
 use fuel_core::state::data_source::DataSource;
 use fuel_core::state::historical_rocksdb::description::Historical;
 use fuel_core::state::historical_rocksdb::{HistoricalRocksDB, StateRewindPolicy};
-use fuel_core::state::rocks_db::RocksDb;
+use fuel_core::state::rocks_db::{ColumnsPolicy, RocksDb};
 use fuel_core_executor::executor::{ExecutionInstance, ExecutionOptions};
 use fuel_core_storage::transactional::{AtomicView, HistoricalView};
 use fuel_core_types::fuel_crypto::SecretKey;
@@ -41,6 +41,7 @@ fn get_config(consensus_parameters: &mut ConsensusParameters, path: &Path) -> Co
     let mut config = Config::local_node_with_configs(chain_config, state_config);
     config.combined_db_config.state_rewind_policy = StateRewindPolicy::RewindFullRange;
     config.combined_db_config.database_path = path.to_path_buf();
+    config.combined_db_config.database_config.columns_policy = ColumnsPolicy::OnCreation;
     config.utxo_validation = true;
     config.txpool.utxo_validation = true;
 
