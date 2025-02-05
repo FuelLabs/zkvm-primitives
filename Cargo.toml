@@ -17,7 +17,7 @@ fuel-core-executor = { version = "0.40.0", default-features = false, features = 
 fuel-core-storage = { version = "0.40.0", default-features = false, features = [
   "alloc",
 ] }
-fuel-core-types = { version = "0.40.0", default-features = false, features = [
+fuel-core-types = { version = "0.40.1", default-features = false, features = [
   "serde",
   "test-helpers",
 ] }
