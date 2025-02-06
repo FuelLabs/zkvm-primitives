@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 anyhow = { workspace = true }
 fuel-core-executor = { workspace = true }
-fuel-core-relayer = { version = "0.41.5" }
+fuel-core-relayer = { version = "0.41.6" }
 fuel-core-storage = { workspace = true }
 fuel-core-types = { workspace = true }
 fuel-zkvm-primitives-prover = { path = "../fuel-zkvm-primitives-prover" }
