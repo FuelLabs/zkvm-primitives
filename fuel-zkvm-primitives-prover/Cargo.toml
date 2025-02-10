@@ -11,3 +11,4 @@ fuel-core-executor = { workspace = true }
 fuel-core-storage = { workspace = true }
 fuel-core-types = { workspace = true }
 serde = { workspace = true }
+fuel-block-committer-encoding = "0.10.5"
