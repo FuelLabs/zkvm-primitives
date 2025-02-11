@@ -14,3 +14,6 @@ fuel-core-compression = { version = "0.41.6" }
 serde = { workspace = true }
 fuel-block-committer-encoding = "0.10.5"
 postcard = "1.0.10"
+
+[dev-dependencies]
+rand = "0.9.0"

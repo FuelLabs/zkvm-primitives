@@ -55,6 +55,18 @@ impl Default for Blob {
     }
 }
 
+impl From<Blob> for Box<[u8; 131072]> {
+    fn from(blob: Blob) -> Self {
+        blob.into_inner()
+    }
+}
+
+impl From<Box<[u8; 131072]>> for Blob {
+    fn from(inner: Box<[u8; 131072]>) -> Self {
+        Self { _inner: inner }
+    }
+}
+
 /// This is the input to the decompression game.
 /// We perform the following validation:
 /// 1. gzip decompress the blob into a set of compressed blocks
@@ -161,5 +173,42 @@ mod tests {
         let result = prove(&input_bytes);
 
         assert!(matches!(result, Err(Error::FailedDecodeIntoBundle)));
+    }
+
+    #[test]
+    fn prove_fails__if_invalid_block_exists_in_bundle() {
+        use rand::Rng;
+
+        let block_size = 1024;
+        let block_count = 10;
+        let bundle_id = 10;
+
+        let rng = &mut rand::rng();
+
+        let blocks = std::iter::repeat_with(|| {
+            let mut buf = vec![0; block_size as usize];
+            rng.fill(&mut buf[..]);
+            buf
+        })
+        .take(block_count)
+        .collect::<Vec<_>>();
+
+        let blocks = bundle::Bundle::V1(bundle::BundleV1 { blocks });
+
+        let blocks_encoded = bundle::Encoder::default().encode(blocks.clone()).unwrap();
+
+        let blobs = blob::Encoder::default()
+            .encode(&blocks_encoded, bundle_id)
+            .unwrap();
+
+        let input = Input {
+            raw_da_blobs: blobs.into_iter().map(Blob::from).collect(),
+        };
+
+        let input_bytes = bincode::serialize(&input).unwrap();
+
+        let result = prove(&input_bytes);
+
+        assert!(matches!(result, Err(Error::FailedDecodeIntoSingleBlock)));
     }
 }
