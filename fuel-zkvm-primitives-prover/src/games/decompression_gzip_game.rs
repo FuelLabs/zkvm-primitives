@@ -87,6 +87,7 @@ sol! {
     }
 }
 
+#[derive(Debug)]
 pub enum Error {
     BadInput,
     FailedDecodeIntoBundle,
@@ -131,13 +132,13 @@ pub fn prove(input_bytes: &[u8]) -> DecompressionGameResult<PublicValuesStruct> 
     }
     .map_err(|_| Error::FailedDecodeIntoSingleBlock)?;
 
-    let first_block = blocks.first().ok_or(Error::FailedToGetFirstBlock)?;
-
-    let last_block = blocks.last().ok_or(Error::FailedToGetLastBlock)?;
+    let first_block_height =
+        u32::from(*blocks.first().ok_or(Error::FailedToGetFirstBlock)?.height());
+    let last_block_height = u32::from(*blocks.last().ok_or(Error::FailedToGetLastBlock)?.height());
 
     Ok(PublicValuesStruct {
-        first_block_height: U256::from_be_bytes(first_block.height().to_be_bytes()),
-        last_block_height: U256::from_be_bytes(last_block.height().to_be_bytes()),
+        first_block_height: U256::from(first_block_height),
+        last_block_height: U256::from(last_block_height),
     })
 }
 
@@ -145,6 +146,14 @@ pub fn prove(input_bytes: &[u8]) -> DecompressionGameResult<PublicValuesStruct> 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn set_height(block: &mut VersionedCompressedBlock, height: u32) {
+        match block {
+            VersionedCompressedBlock::V0(block) => {
+                block.header.consensus.height = height.into();
+            }
+        }
+    }
 
     #[test]
     fn prove_fails__if_bad_input_provided() {
@@ -210,5 +219,57 @@ mod tests {
         let result = prove(&input_bytes);
 
         assert!(matches!(result, Err(Error::FailedDecodeIntoSingleBlock)));
+    }
+
+    #[test]
+    fn prove_fails__if_no_blocks_in_bundle() {
+        let blocks = bundle::Bundle::V1(bundle::BundleV1 { blocks: vec![] });
+
+        let blocks_encoded = bundle::Encoder::default().encode(blocks.clone()).unwrap();
+
+        let blobs = blob::Encoder::default().encode(&blocks_encoded, 0).unwrap();
+
+        let input = Input {
+            raw_da_blobs: blobs.into_iter().map(Blob::from).collect(),
+        };
+
+        let input_bytes = bincode::serialize(&input).unwrap();
+
+        let result = prove(&input_bytes);
+
+        assert!(matches!(result, Err(Error::FailedToGetFirstBlock)));
+    }
+
+    #[test]
+    fn prove_succeeds__if_valid_blocks_are_provided() {
+        let first_height = 5;
+        let last_height = 10;
+
+        let mut block_a = VersionedCompressedBlock::V0(Default::default());
+        set_height(&mut block_a, first_height);
+        let block_a = postcard::to_allocvec(&block_a).unwrap();
+
+        let mut block_b = VersionedCompressedBlock::default();
+        set_height(&mut block_b, last_height);
+        let block_b = postcard::to_allocvec(&block_b).unwrap();
+
+        let blocks = bundle::Bundle::V1(bundle::BundleV1 {
+            blocks: vec![block_a, block_b],
+        });
+
+        let blocks_encoded = bundle::Encoder::default().encode(blocks.clone()).unwrap();
+
+        let blobs = blob::Encoder::default().encode(&blocks_encoded, 0).unwrap();
+
+        let input = Input {
+            raw_da_blobs: blobs.into_iter().map(Blob::from).collect(),
+        };
+
+        let input_bytes = bincode::serialize(&input).unwrap();
+
+        let result = prove(&input_bytes).unwrap();
+
+        assert_eq!(result.first_block_height, U256::from(first_height));
+        assert_eq!(result.last_block_height, U256::from(last_height));
     }
 }
