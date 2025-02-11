@@ -4,7 +4,6 @@ use fuel_block_committer_encoding::{
     bundle,
 };
 use fuel_core_compression::{VersionedBlockPayload, VersionedCompressedBlock};
-// use fuel_core_compression::
 extern crate alloc;
 
 #[derive(Clone)]
@@ -95,9 +94,8 @@ pub fn prove(input_bytes: &[u8]) -> DecompressionGameResult<PublicValuesStruct> 
     let blob_decoder = blob::Decoder::default();
 
     let raw_da_blobs = raw_da_blobs
-        .iter()
-        .cloned()
-        .map(|blob| blob.into_inner())
+        .into_iter()
+        .map(Blob::into_inner)
         .collect::<Vec<_>>();
 
     let compressed_bundle = blob_decoder
