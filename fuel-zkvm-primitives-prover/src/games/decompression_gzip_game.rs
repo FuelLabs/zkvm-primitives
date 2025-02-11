@@ -15,7 +15,7 @@ impl serde::Serialize for Blob {
     where
         S: serde::Serializer,
     {
-        serializer.serialize_bytes(&self._inner.as_slice())
+        serializer.serialize_bytes(self._inner.as_slice())
     }
 }
 
