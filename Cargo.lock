@@ -4253,9 +4253,11 @@ dependencies = [
  "anyhow",
  "bincode",
  "fuel-block-committer-encoding",
+ "fuel-core-compression",
  "fuel-core-executor",
  "fuel-core-storage 0.41.6",
  "fuel-core-types 0.41.6",
+ "postcard",
  "serde",
 ]
 

@@ -3,6 +3,8 @@ use fuel_block_committer_encoding::{
     blob::{self},
     bundle,
 };
+use fuel_core_compression::{VersionedBlockPayload, VersionedCompressedBlock};
+// use fuel_core_compression::
 extern crate alloc;
 
 #[derive(Clone)]
@@ -78,6 +80,9 @@ pub enum Error {
     BadInput,
     FailedDecodeIntoBundle,
     FailedDecodeIntoBlocks,
+    FailedDecodeIntoSingleBlock,
+    FailedToGetFirstBlock,
+    FailedToGetLastBlock,
 }
 
 pub type DecompressionGameResult<T> = core::result::Result<T, Error>;
@@ -105,16 +110,24 @@ pub fn prove(input_bytes: &[u8]) -> DecompressionGameResult<PublicValuesStruct> 
         .decode(compressed_bundle.as_slice())
         .map_err(|_| Error::FailedDecodeIntoBlocks)?;
 
-    match bundle {
+    let blocks = match bundle {
         bundle::Bundle::V1(v1_bundle) => {
-            let _blocks = v1_bundle.blocks;
-            // postcard deserialize each block into VersionedCompressedBlock
+            let raw_blocks = v1_bundle.blocks;
+            raw_blocks
+                .iter()
+                .map(|raw_block| postcard::from_bytes::<VersionedCompressedBlock>(raw_block))
+                .collect::<Result<Vec<_>, _>>()
         }
     }
+    .map_err(|_| Error::FailedDecodeIntoSingleBlock)?;
+
+    let first_block = blocks.first().ok_or(Error::FailedToGetFirstBlock)?;
+
+    let last_block = blocks.last().ok_or(Error::FailedToGetLastBlock)?;
 
     Ok(PublicValuesStruct {
-        first_block_height: U256::from_be_bytes(0u32.to_be_bytes()),
-        last_block_height: U256::from_be_bytes(0u32.to_be_bytes()),
+        first_block_height: U256::from_be_bytes(first_block.height().to_be_bytes()),
+        last_block_height: U256::from_be_bytes(last_block.height().to_be_bytes()),
     })
 }
 
