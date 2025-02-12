@@ -3241,6 +3241,17 @@ dependencies = [
 
 [[package]]
 name = "fuel-compression"
+version = "0.58.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "24e42841f56f76ed759b3f516e5188d5c42de47015bee951651660c13b6dfa6c"
+dependencies = [
+ "fuel-derive 0.58.2",
+ "fuel-types 0.58.2",
+ "serde",
+]
+
+[[package]]
+name = "fuel-compression"
 version = "0.59.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6269052edeef79b4fe02ee1bb518e926098dd0ef81d88e3a617b218c05cef233"
@@ -3265,7 +3276,7 @@ dependencies = [
  "derive_more 0.99.18",
  "enum-iterator 1.5.0",
  "fuel-core-chain-config 0.41.6",
- "fuel-core-compression",
+ "fuel-core-compression 0.41.6",
  "fuel-core-consensus-module",
  "fuel-core-database",
  "fuel-core-executor",
@@ -3318,7 +3329,7 @@ dependencies = [
  "anyhow",
  "derivative",
  "fuel-core-storage 0.40.0",
- "fuel-core-types 0.40.0",
+ "fuel-core-types 0.40.4",
  "itertools 0.12.1",
  "postcard",
  "serde",
@@ -3354,7 +3365,7 @@ dependencies = [
  "anyhow",
  "cynic 2.2.8",
  "derive_more 0.99.18",
- "fuel-core-types 0.40.0",
+ "fuel-core-types 0.40.4",
  "hex",
  "itertools 0.12.1",
  "reqwest 0.11.27",
@@ -3389,6 +3400,20 @@ dependencies = [
  "tai64",
  "thiserror 1.0.69",
  "tracing",
+]
+
+[[package]]
+name = "fuel-core-compression"
+version = "0.40.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "446e65d86a7dc70fc98de2b63b14e6340f126ec3dc828eec2eab327c9a315786"
+dependencies = [
+ "anyhow",
+ "fuel-core-types 0.40.4",
+ "paste",
+ "serde",
+ "strum 0.25.0",
+ "strum_macros 0.25.3",
 ]
 
 [[package]]
@@ -3658,7 +3683,7 @@ dependencies = [
  "anyhow",
  "derive_more 0.99.18",
  "enum-iterator 1.5.0",
- "fuel-core-types 0.40.0",
+ "fuel-core-types 0.40.4",
  "fuel-vm 0.58.2",
  "impl-tools",
  "itertools 0.12.1",
@@ -3735,15 +3760,16 @@ dependencies = [
 
 [[package]]
 name = "fuel-core-types"
-version = "0.40.0"
+version = "0.40.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6ee3a95b189bf729d21354a761862bb481298cbd883550adc3fef1bc7beb0b67"
+checksum = "f1af4d93280d630121ea025aa3797862ede4186cbce043929ac46ea86e1f55f1"
 dependencies = [
  "anyhow",
  "bs58",
  "derivative",
  "derive_more 0.99.18",
  "fuel-vm 0.58.2",
+ "k256",
  "secrecy",
  "serde",
  "tai64",
@@ -4062,6 +4088,7 @@ dependencies = [
  "derivative",
  "derive_more 0.99.18",
  "fuel-asm 0.58.2",
+ "fuel-compression 0.58.2",
  "fuel-crypto 0.58.2",
  "fuel-merkle 0.58.2",
  "fuel-types 0.58.2",
@@ -4084,7 +4111,7 @@ dependencies = [
  "derive_more 1.0.0",
  "educe 0.6.0",
  "fuel-asm 0.59.1",
- "fuel-compression",
+ "fuel-compression 0.59.1",
  "fuel-crypto 0.59.1",
  "fuel-merkle 0.59.1",
  "fuel-types 0.59.1",
@@ -4177,6 +4204,7 @@ dependencies = [
  "derive_more 0.99.18",
  "ethnum",
  "fuel-asm 0.58.2",
+ "fuel-compression 0.58.2",
  "fuel-crypto 0.58.2",
  "fuel-merkle 0.58.2",
  "fuel-storage 0.58.2",
@@ -4211,7 +4239,7 @@ dependencies = [
  "educe 0.6.0",
  "ethnum",
  "fuel-asm 0.59.1",
- "fuel-compression",
+ "fuel-compression 0.59.1",
  "fuel-crypto 0.59.1",
  "fuel-merkle 0.59.1",
  "fuel-storage 0.59.1",
@@ -4253,13 +4281,14 @@ dependencies = [
  "anyhow",
  "bincode",
  "fuel-block-committer-encoding",
- "fuel-core-compression",
+ "fuel-core-compression 0.40.4",
  "fuel-core-executor",
  "fuel-core-storage 0.41.6",
  "fuel-core-types 0.41.6",
  "postcard",
  "rand 0.9.0",
  "serde",
+ "thiserror 2.0.3",
 ]
 
 [[package]]
@@ -4395,7 +4424,7 @@ dependencies = [
  "fuel-asm 0.58.2",
  "fuel-core-chain-config 0.40.0",
  "fuel-core-client 0.40.0",
- "fuel-core-types 0.40.0",
+ "fuel-core-types 0.40.4",
  "fuel-crypto 0.58.2",
  "fuel-tx 0.58.2",
  "fuel-types 0.58.2",

@@ -3,7 +3,7 @@ use fuel_block_committer_encoding::{
     blob::{self},
     bundle,
 };
-use fuel_core_compression::{VersionedBlockPayload, VersionedCompressedBlock};
+use fuel_core_compression::VersionedCompressedBlock;
 extern crate alloc;
 
 #[derive(Clone)]
@@ -44,6 +44,13 @@ impl Blob {
 
     fn into_inner(self) -> Box<[u8; 131072]> {
         self._inner
+    }
+
+    #[cfg(test)]
+    fn from_inner(inner: [u8; 131072]) -> Self {
+        Self {
+            _inner: Box::new(inner),
+        }
     }
 }
 
@@ -87,13 +94,19 @@ sol! {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum Error {
+    #[error("Invalid input provided")]
     BadInput,
+    #[error("Failed to decode raw bytes into bundle")]
     FailedDecodeIntoBundle,
-    FailedDecodeIntoBlocks,
-    FailedDecodeIntoSingleBlock,
+    #[error("Failed to decode bundle into blocks: {0}")]
+    FailedDecodeIntoBlocks(String),
+    #[error("Failed to decode blocks into single block: {0}")]
+    FailedDecodeIntoSingleBlock(String),
+    #[error("Failed to get first block")]
     FailedToGetFirstBlock,
+    #[error("Failed to get last block")]
     FailedToGetLastBlock,
 }
 
@@ -119,7 +132,7 @@ pub fn prove(input_bytes: &[u8]) -> DecompressionGameResult<PublicValuesStruct> 
 
     let bundle = bundle_decoder
         .decode(compressed_bundle.as_slice())
-        .map_err(|_| Error::FailedDecodeIntoBlocks)?;
+        .map_err(|e| Error::FailedDecodeIntoBlocks(e.to_string()))?;
 
     let blocks = match bundle {
         bundle::Bundle::V1(v1_bundle) => {
@@ -130,11 +143,15 @@ pub fn prove(input_bytes: &[u8]) -> DecompressionGameResult<PublicValuesStruct> 
                 .collect::<Result<Vec<_>, _>>()
         }
     }
-    .map_err(|_| Error::FailedDecodeIntoSingleBlock)?;
+    .map_err(|e| Error::FailedDecodeIntoSingleBlock(e.to_string()))?;
 
-    let first_block_height =
-        u32::from(*blocks.first().ok_or(Error::FailedToGetFirstBlock)?.height());
-    let last_block_height = u32::from(*blocks.last().ok_or(Error::FailedToGetLastBlock)?.height());
+    let VersionedCompressedBlock::V0(first_block) =
+        blocks.first().ok_or(Error::FailedToGetFirstBlock)?;
+    let VersionedCompressedBlock::V0(last_block) =
+        blocks.last().ok_or(Error::FailedToGetLastBlock)?;
+
+    let first_block_height = u32::from(*first_block.header.height());
+    let last_block_height = u32::from(*last_block.header.height());
 
     Ok(PublicValuesStruct {
         first_block_height: U256::from(first_block_height),
@@ -218,7 +235,7 @@ mod tests {
 
         let result = prove(&input_bytes);
 
-        assert!(matches!(result, Err(Error::FailedDecodeIntoSingleBlock)));
+        assert!(matches!(result, Err(Error::FailedDecodeIntoSingleBlock(_))));
     }
 
     #[test]
@@ -271,5 +288,30 @@ mod tests {
 
         assert_eq!(result.first_block_height, U256::from(first_height));
         assert_eq!(result.last_block_height, U256::from(last_height));
+    }
+
+    #[test]
+    fn prove_succeeds__with_real_data() {
+        let blobs = include_bytes!("decompression_gzip_game/mainnet_blobs.bin");
+        let blobs: Vec<Vec<u8>> = bincode::deserialize(blobs).unwrap();
+
+        let blobs = blobs
+            .iter()
+            .map(|blob| {
+                let mut blob_array = [0; 131072];
+                blob_array.copy_from_slice(&blob[8..]);
+                Blob::from_inner(blob_array)
+            })
+            .collect::<Vec<_>>();
+
+        let input = Input {
+            raw_da_blobs: blobs,
+        };
+
+        let input_bytes = bincode::serialize(&input).unwrap();
+
+        let result = prove(&input_bytes).unwrap();
+
+        assert!(result.first_block_height < result.last_block_height);
     }
 }
