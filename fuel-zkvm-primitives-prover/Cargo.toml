@@ -10,7 +10,7 @@ bincode = { workspace = true }
 fuel-core-executor = { workspace = true }
 fuel-core-storage = { workspace = true }
 fuel-core-types = { workspace = true }
-fuel-core-compression = { version = "0.40.4" }
+fuel-core-compression = { version = "0.41.7" }
 serde = { workspace = true }
 fuel-block-committer-encoding = "0.10.5"
 postcard = "1.0.10"
