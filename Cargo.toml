@@ -21,9 +21,9 @@ fuel-core-types = { version = "0.41.7", default-features = false, features = [
     "serde",
     "test-helpers",
 ] }
-tokio = { version = "1.40.0", features = ["macros", "rt-multi-thread"] }
+tokio = { version = "1.43.0", features = ["macros", "rt-multi-thread"] }
 serde = { version = "1", default-features = false, features = ["derive"] }
-fuels = "0.70.0"
+fuels = "0.70.1"
 fuels-core = "0.70.0"
 fuel-core = { version = "0.41.7", features = [
     "rocksdb",
