@@ -7,13 +7,13 @@ edition = "2021"
 alloy-sol-types = { workspace = true }
 anyhow = { version = "1", default-features = false }
 bincode = { workspace = true }
+fuel-block-committer-encoding = "0.10.5"
+fuel-core-compression = { version = "0.41.7" }
 fuel-core-executor = { workspace = true }
 fuel-core-storage = { workspace = true }
 fuel-core-types = { workspace = true }
-fuel-core-compression = { version = "0.41.7" }
-serde = { workspace = true }
-fuel-block-committer-encoding = "0.10.5"
 postcard = "1.0.10"
+serde = { workspace = true }
 thiserror = "2.0.3"
 
 [dev-dependencies]
