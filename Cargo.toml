@@ -21,6 +21,9 @@ fuel-core-types = { version = "0.41.7", default-features = false, features = [
     "serde",
     "test-helpers",
 ] }
+fuel-zkvm-primitives-input-provider = { path = "fuel-zkvm-primitives-input-provider" }
+fuel-zkvm-primitives-prover = { path = "fuel-zkvm-primitives-prover" }
+fuel-zkvm-primitives-utils = { path = "fuel-zkvm-primitives-utils" }
 tokio = { version = "1.40.0", features = ["macros", "rt-multi-thread"] }
 serde = { version = "1", default-features = false, features = ["derive"] }
 fuels = "0.70.0"

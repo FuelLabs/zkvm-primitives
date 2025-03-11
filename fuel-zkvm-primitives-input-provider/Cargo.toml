@@ -9,4 +9,4 @@ fuel-core-executor = { workspace = true }
 fuel-core-relayer = { version = "0.41.7" }
 fuel-core-storage = { workspace = true }
 fuel-core-types = { workspace = true }
-fuel-zkvm-primitives-prover = { path = "../fuel-zkvm-primitives-prover" }
+fuel-zkvm-primitives-prover = { workspace = true }

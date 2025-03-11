@@ -1,4 +1,3 @@
-// mod counter_contract;
 mod opcodes;
 mod utils;
 
@@ -9,10 +8,6 @@ pub async fn main() {
         return;
     }
 
-    // TODO: fix bug in abigen, uses workspace root instead of current directory for path
-    // counter_contract::generate_fixture()
-    //     .await
-    //     .expect("Failed to generate fixture for counter contract");
     opcodes::generate_fixture()
         .await
         .expect("Failed to generate fixture for opcodes");
