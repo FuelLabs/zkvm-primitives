@@ -7,3 +7,6 @@
 #![deny(warnings)]
 
 pub mod vm;
+
+#[allow(unused)]
+use tai64 as _;
