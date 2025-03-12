@@ -2,22 +2,10 @@
 
 Here we attempt to establish testing coverage over all opcodes and some example contracts written in sway with zkvm targets.
 
-## Test Opcodes
+## Test Block execution game fixtures
 
 ```shell
-cargo test --lib opcodes::tests
-```
-
-## Test Counter Contract
-
-```shell
-cargo test --lib counter_contract::tests
-```
-
-## Test Mainnet blocks
-
-```shell
-cargo test --lib mainnet_blocks::tests
+cargo test --lib block_execution_fixtures
 ```
 
 ## Refreshing serialized proof inputs
@@ -27,5 +15,5 @@ If you update a dependency and don't seem to be detecting changes in behaviour i
 ```shell
 export REFRESH_BUILD=true
 # now any command ran will trigger the rebuild if necessary,
-cargo test --lib opcodes::tests
+cargo test --lib block_execution_fixtures
 ```
