@@ -1,10 +1,15 @@
+//! Logging utilities for the application.
+
 use core::str::FromStr;
 use std::env;
 use tracing_subscriber::{filter::EnvFilter, layer::SubscriberExt, registry, Layer};
 
+/// The environment variable used to set the log filter.
 pub const LOG_FILTER: &str = "RUST_LOG";
+/// The environment variable used to enable human readable logging.
 pub const HUMAN_LOGGING: &str = "HUMAN_LOGGING";
 
+/// Initialize the logging system.
 pub fn init_logging() {
     let filter = match env::var_os(LOG_FILTER) {
         Some(_) => EnvFilter::try_from_default_env().expect("Invalid `RUST_LOG` provided"),

@@ -1,3 +1,5 @@
+//! CRYPTO instructions
+
 use crate::vm::AsRepr;
 use ed25519_dalek::Signer;
 use fuel_core_storage::rand::prelude::StdRng;
@@ -65,6 +67,8 @@ fn ed19_script_data() -> &'static (
     })
 }
 
+/// Crypto instructions
+#[allow(missing_docs)]
 #[cfg_attr(
     feature = "enhanced_enums",
     derive(clap::ValueEnum, enum_iterator::Sequence)
@@ -107,7 +111,12 @@ fn eck1() -> Vec<Instruction> {
 
     vec![
         op::gtf_args(0x20, 0x00, GTFArgs::ScriptData),
-        op::addi(0x21, 0x20, eck1_signature.len() as u16),
+        #[allow(clippy::arithmetic_side_effects)]
+        op::addi(
+            0x21,
+            0x20,
+            u16::try_from(eck1_signature.len()).expect("qed"),
+        ),
         op::movi(0x10, PublicKey::LEN.try_into().unwrap()),
         op::aloc(0x10),
         op::eck1(RegId::HP, 0x20, 0x21),
@@ -120,7 +129,12 @@ fn ecr1() -> Vec<Instruction> {
 
     vec![
         op::gtf_args(0x20, 0x00, GTFArgs::ScriptData),
-        op::addi(0x21, 0x20, ecr1_signature.len() as u16),
+        #[allow(clippy::arithmetic_side_effects)]
+        op::addi(
+            0x21,
+            0x20,
+            u16::try_from(ecr1_signature.len()).expect("qed"),
+        ),
         op::movi(0x10, PublicKey::LEN.try_into().unwrap()),
         op::aloc(0x10),
         op::ecr1(RegId::HP, 0x20, 0x21),
@@ -149,7 +163,7 @@ fn ed19() -> Vec<Instruction> {
             0x21,
             ed19_params.1.to_bytes().len().try_into().unwrap(),
         ),
-        op::movi(0x10, ed19_params.3.len() as u32),
+        op::movi(0x10, u32::try_from(ed19_params.3.len()).expect("qed")),
         op::ed19(0x20, 0x21, 0x22, 0x23),
         op::jmpb(RegId::ZERO, 0),
     ]

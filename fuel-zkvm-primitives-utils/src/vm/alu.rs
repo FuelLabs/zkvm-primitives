@@ -1,3 +1,5 @@
+//! ALU instructions
+
 use crate::vm::base::AsRepr;
 use crate::vm::utils::alloc_bytearray;
 use ethnum::U256;
@@ -6,8 +8,8 @@ use fuel_core_types::fuel_asm::wideint::{
 };
 use fuel_core_types::fuel_asm::{op, Instruction, RegId};
 
-/// This file contains helpers to generate scripts with various alu operations in an infinite loop.
-
+/// ALU instructions
+#[allow(missing_docs)]
 #[cfg_attr(
     feature = "enhanced_enums",
     derive(clap::ValueEnum, enum_iterator::Sequence)
@@ -534,6 +536,7 @@ fn wdmm() -> Vec<u8> {
     harness.into_iter().collect()
 }
 
+#[allow(clippy::arithmetic_side_effects)]
 fn prepared_wideint_u256() -> Vec<Instruction> {
     let mut wideint_prepare = Vec::new();
     wideint_prepare.extend(make_u256(0x10, U256::ZERO));

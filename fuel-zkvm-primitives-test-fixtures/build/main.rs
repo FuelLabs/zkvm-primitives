@@ -1,5 +1,4 @@
-mod opcodes;
-mod utils;
+mod block_execution_fixtures;
 
 #[tokio::main]
 pub async fn main() {
@@ -8,7 +7,7 @@ pub async fn main() {
         return;
     }
 
-    opcodes::generate_fixture()
+    block_execution_fixtures::generate_fixture()
         .await
-        .expect("Failed to generate fixture for opcodes");
+        .expect("Failed to generate fixture for block_execution_fixtures");
 }

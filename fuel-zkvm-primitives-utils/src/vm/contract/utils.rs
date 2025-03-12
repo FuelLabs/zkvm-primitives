@@ -1,4 +1,4 @@
-// copied from https://github.com/FuelLabs/fuel-core/blob/328b42ca5d26f7ca74b979df38137e001b5a86ed/benches/benches/block_target_gas.rs
+//! copied from https://github.com/FuelLabs/fuel-core/blob/328b42ca5d26f7ca74b979df38137e001b5a86ed/benches/benches/block_target_gas.rs
 
 use fuel_core_types::fuel_asm::wideint::MathOp;
 use fuel_core_types::fuel_asm::{op, GTFArgs, Instruction, RegId};

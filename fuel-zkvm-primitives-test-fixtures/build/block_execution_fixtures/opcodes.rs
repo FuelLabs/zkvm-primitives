@@ -1,4 +1,4 @@
-use crate::utils::{
+use crate::block_execution_fixtures::utils::{
     generate_input_at_block_height, get_temp_db, start_node, start_node_with_db, Service,
 };
 use fuel_core::database::balances::BalancesInitializer;

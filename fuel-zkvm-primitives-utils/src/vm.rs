@@ -1,3 +1,5 @@
+//! VM instruction set
+
 use crate::vm::alu::AluInstruction;
 use crate::vm::base::AsRepr;
 use crate::vm::blob::BlobInstruction;
@@ -18,29 +20,39 @@ pub mod control;
 pub mod crypto;
 pub mod memory;
 pub mod other;
-pub mod utils;
 pub mod zk;
+
+mod utils;
 
 #[cfg(feature = "enhanced_enums")]
 static INSTRUCTION_VARIANTS: std::sync::OnceLock<Vec<Instruction>> = std::sync::OnceLock::new();
 
+/// Get all the instructions
 #[cfg(feature = "enhanced_enums")]
 pub fn all_instructions() -> &'static Vec<Instruction> {
     INSTRUCTION_VARIANTS.get_or_init(|| enum_iterator::all::<Instruction>().collect())
 }
 
-// Implemented instructions for the VM
+/// VM instructions
 #[cfg_attr(feature = "enhanced_enums", derive(enum_iterator::Sequence))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone)]
 pub enum Instruction {
+    /// ALU specific instructions
     ALU(AluInstruction),
+    /// Control flow instructions
     CTRL(ControlInstruction),
+    /// Memory instructions
     MEM(MemoryInstruction),
+    /// Blob instructions
     BLOB(BlobInstruction),
+    /// Crypto instructions
     CRYPTO(CryptoInstruction),
+    /// Other instructions
     OTHER(OtherInstruction),
+    /// Contract instructions
     CONTRACT(ContractInstruction),
+    /// Zero-knowledge instructions
     ZK(ZkInstruction),
 }
 

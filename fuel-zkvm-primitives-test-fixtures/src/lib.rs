@@ -1,9 +1,9 @@
-pub mod counter_contract;
-pub mod mainnet_blocks;
-pub mod opcodes;
+//! Test fixtures to be tested within a zkvm context
 
-#[cfg(feature = "enhanced_enums")]
-mod fixtures;
+#![deny(clippy::arithmetic_side_effects)]
+#![deny(clippy::cast_possible_truncation)]
+#![deny(unused_crate_dependencies)]
+#![deny(missing_docs)]
+#![deny(warnings)]
 
-#[cfg(feature = "enhanced_enums")]
-pub use fixtures::*;
+pub mod block_execution_fixtures;

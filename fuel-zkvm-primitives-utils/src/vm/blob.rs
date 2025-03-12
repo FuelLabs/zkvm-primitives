@@ -1,3 +1,5 @@
+//! BLOB instructions
+
 use crate::vm::base::AsRepr;
 use crate::vm::memory::set_full_word;
 use fuel_core_storage::rand::prelude::StdRng;
@@ -19,6 +21,8 @@ fn get_blob_instance() -> &'static Vec<u8> {
     })
 }
 
+/// Blob instructions
+#[allow(missing_docs)]
 #[cfg_attr(
     feature = "enhanced_enums",
     derive(clap::ValueEnum, enum_iterator::Sequence)
@@ -48,6 +52,7 @@ impl AsRepr for BlobInstruction {
 }
 
 impl BlobInstruction {
+    /// Get the blob data
     pub fn blob_data(&self) -> Vec<u8> {
         get_blob_instance().clone()
     }

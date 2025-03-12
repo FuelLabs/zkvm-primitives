@@ -1,6 +1,10 @@
+//! CONTROL instructions
+
 use crate::vm::AsRepr;
 use fuel_core_types::fuel_asm::{op, RegId};
 
+/// Control instructions
+#[allow(missing_docs)]
 #[cfg_attr(
     feature = "enhanced_enums",
     derive(clap::ValueEnum, enum_iterator::Sequence)

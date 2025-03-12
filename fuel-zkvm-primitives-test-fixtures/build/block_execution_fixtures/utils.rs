@@ -21,7 +21,7 @@ use std::path::Path;
 use std::sync::Arc;
 
 const CONSENSUS_PARAMETERS: &[u8] =
-    include_bytes!("../src/fixtures/test_consensus_parameters.json");
+    include_bytes!("../../src/block_execution_fixtures/fixtures/test_consensus_parameters.json");
 
 pub struct Service {
     #[allow(dead_code)]

@@ -1,10 +1,12 @@
+//! MEMORY instructions
+
 use crate::vm::AsRepr;
 use fuel_core_types::fuel_asm::{op, Instruction, RegId};
 use fuel_core_types::fuel_tx::Word;
 use fuel_core_types::fuel_types::RegisterId;
 
-// all fixtures obtained from https://github.com/FuelLabs/fuel-core/blob/62766787f9e24f9e581dcaada9dfa982355ea89f/benches/benches/block_target_gas_set/memory.rs
-
+/// Memory instructions
+#[allow(missing_docs)]
 #[cfg_attr(
     feature = "enhanced_enums",
     derive(clap::ValueEnum, enum_iterator::Sequence)
@@ -182,7 +184,7 @@ fn cfsi() -> Vec<Instruction> {
     ]
 }
 
-pub fn set_full_word(r: RegisterId, v: Word) -> Vec<Instruction> {
+pub(crate) fn set_full_word(r: RegisterId, v: Word) -> Vec<Instruction> {
     let r = u8::try_from(r).unwrap();
     let mut ops = vec![op::movi(r, 0)];
     for byte in v.to_be_bytes() {

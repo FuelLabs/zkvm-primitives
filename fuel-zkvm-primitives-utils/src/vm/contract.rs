@@ -1,3 +1,5 @@
+//! CONTRACT instructions
+
 mod utils;
 
 use crate::vm::base::AsRepr;
@@ -207,7 +209,11 @@ fn srwq_metadata() -> &'static ContractInstructionMetadata {
         let step = 10;
         let mut contract_bytecode = vec![
             op::movi(0x15, step),
-            op::movi(0x16, step * Bytes32::LEN as u32),
+            op::movi(
+                0x16,
+                step.checked_mul(u32::try_from(Bytes32::LEN).expect("qed"))
+                    .expect(""),
+            ),
             op::aloc(0x16),
             op::move_(0x17, RegId::HP),
         ];
@@ -290,7 +296,11 @@ fn special_metadata() -> &'static ContractInstructionMetadata {
             op::aloc(0x23),
             // start srwq process
             op::movi(0x15, step),
-            op::movi(0x16, step * Bytes32::LEN as u32),
+            op::movi(
+                0x16,
+                step.checked_mul(u32::try_from(Bytes32::LEN).expect("qed"))
+                    .expect("qed"),
+            ),
             op::aloc(0x16),
             op::move_(0x17, RegId::HP),
         ];
@@ -304,6 +314,8 @@ fn special_metadata() -> &'static ContractInstructionMetadata {
     })
 }
 
+/// Contract instructions
+#[allow(missing_docs)]
 #[allow(non_camel_case_types)]
 #[cfg_attr(
     feature = "enhanced_enums",
@@ -469,14 +481,19 @@ impl AsRepr for ContractInstruction {
     }
 }
 
+/// Contract metadata
 #[derive(Clone)]
 pub struct ContractMetadata {
+    /// Contract ID
     pub contract_id: ContractId,
+    /// Contract bytecode
     pub contract_bytecode: Vec<u8>,
+    /// State size
     pub state_size: usize,
 }
 
 impl ContractInstruction {
+    /// Get the contract metadata
     pub fn contract_metadata(&self) -> Option<ContractMetadata> {
         match &self {
             ContractInstruction::BAL => Some(bal_metadata().contract_metadata.clone()),

@@ -1,9 +1,11 @@
+//! ZK instructions
+
 use crate::vm::base::AsRepr;
 use fuel_core_types::fuel_asm::{op, GTFArgs, RegId};
 use std::sync::OnceLock;
 
-/// This file contains helpers to generate scripts with various zk operations in an infinite loop.
-
+/// Zk instructions
+#[allow(missing_docs)]
 #[allow(non_camel_case_types)]
 #[cfg_attr(
     feature = "enhanced_enums",
@@ -57,10 +59,7 @@ fn ecop_alt_bn_128_metadata() -> &'static ZkInstructionMetadata {
 
     ECOP_ALT_BN_128_METADATA.get_or_init(|| ZkInstructionMetadata {
         script_data: vec![],
-        script: prepared_script
-            .into_iter()
-            .chain(script.into_iter())
-            .collect(),
+        script: prepared_script.into_iter().chain(script).collect(),
     })
 }
 
