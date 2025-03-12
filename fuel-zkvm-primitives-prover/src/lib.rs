@@ -3,4 +3,6 @@
 #![deny(unused_crate_dependencies)]
 #![deny(warnings)]
 
+use tai64 as _;
+
 pub mod games;

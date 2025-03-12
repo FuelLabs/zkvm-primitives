@@ -15,7 +15,7 @@ fuels-core = { workspace = true }
 hex = "0.4.3"
 p256 = { version = "0.13.2", features = ["ecdsa-core"] }
 serde = { workspace = true, optional = true }
-tai64 = "=4.0.0"
+tai64 = { workspace = true }
 
 [features]
 enhanced_enums = ["dep:clap", "dep:enum-iterator"]

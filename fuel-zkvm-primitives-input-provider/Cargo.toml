@@ -10,3 +10,4 @@ fuel-core-relayer = { version = "0.41.9" }
 fuel-core-storage = { workspace = true }
 fuel-core-types = { workspace = true }
 fuel-zkvm-primitives-prover = { workspace = true }
+tai64 = { workspace = true }
