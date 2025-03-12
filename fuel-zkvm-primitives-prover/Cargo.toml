@@ -7,7 +7,7 @@ edition = "2021"
 alloy-sol-types = { workspace = true }
 anyhow = { version = "1", default-features = false }
 bincode = { workspace = true }
-fuel-block-committer-encoding = "0.10.7"
+fuel-block-committer-encoding = "0.10.5"
 fuel-core-compression = { workspace = true }
 fuel-core-executor = { workspace = true }
 fuel-core-storage = { workspace = true }
