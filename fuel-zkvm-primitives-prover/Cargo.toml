@@ -7,18 +7,15 @@ edition = "2021"
 alloy-sol-types = { workspace = true }
 anyhow = { version = "1", default-features = false }
 bincode = { workspace = true }
-fuel-block-committer-encoding = { version = "0.10.7", optional = true }
-fuel-core-compression = { workspace = true, optional = true }
+fuel-block-committer-encoding = { git = "https://github.com/fuellabs/fuel-block-committer", rev = "ad6281e" }
+fuel-core-compression = { workspace = true }
 fuel-core-executor = { workspace = true }
 fuel-core-storage = { workspace = true }
 fuel-core-types = { workspace = true }
-postcard = { version = "1.0.10", optional = true }
+postcard = { version = "1.0.10" }
 serde = { workspace = true }
 tai64 = { workspace = true }
-thiserror = { version = "2.0.3", optional = true }
+thiserror = { version = "2.0.3" }
 
 [dev-dependencies]
 rand = { version = "0.9.0" }
-
-[features]
-compression-game = ["dep:fuel-block-committer-encoding", "dep:postcard", "dep:fuel-core-compression", "dep:thiserror"]
