@@ -27,7 +27,7 @@ fuel-zkvm-primitives-utils = { workspace = true, features = [
 fuels = { workspace = true }
 fuels-core = { workspace = true }
 futures = "0.3.31"
-primitive-types = "0.12.2"
+primitive-types = "0.13.1"
 serde_json = { version = "1", default-features = false }
 tempfile = "3.14.0"
 tokio = { workspace = true }
