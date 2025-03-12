@@ -172,20 +172,20 @@ pub async fn start_node_with_transaction_and_produce_prover_input(
 ) -> anyhow::Result<Service> {
     let (fuel_node, tx_inclusion_block_height) = match instruction {
         Instruction::BLOB(instruction) => {
-            let (fuel_node, wallet) = start_node(None).await;
+            let (fuel_node, wallet) = start_node().await;
             let block_height = send_blob_transaction(instruction, &wallet).await?;
             (fuel_node, block_height)
         }
         Instruction::CONTRACT(instruction) => {
             let mut db = get_temp_db();
             scaffold_contract_instruction(&mut db, instruction).await?;
-            let (fuel_node, wallet) = start_node_with_db(db, None).await;
+            let (fuel_node, wallet) = start_node_with_db(db).await;
             let block_height =
                 send_script_transaction(Instruction::CONTRACT(instruction), &wallet).await?;
             (fuel_node, block_height)
         }
         _ => {
-            let (fuel_node, wallet) = start_node(None).await;
+            let (fuel_node, wallet) = start_node().await;
             let block_height = send_script_transaction(instruction, &wallet).await?;
             (fuel_node, block_height)
         }
@@ -201,19 +201,29 @@ pub async fn generate_fixture() -> anyhow::Result<()> {
 
     stream::iter(all_instructions)
         .map(|instruction| async move {
-            let service =
-                start_node_with_transaction_and_produce_prover_input(instruction.clone()).await?;
+            // Run async operations and propagate errors
+            let result = async {
+                let service =
+                    start_node_with_transaction_and_produce_prover_input(instruction.clone())
+                        .await?;
 
-            let serialized_prover_input = bincode::serialize(&service.input)?;
-            let file_path = format!("src/fixtures/opcodes/{instruction:?}.bin");
-            std::fs::write(file_path, serialized_prover_input)?;
+                let serialized_prover_input = bincode::serialize(&service.input)?;
+                let file_path = format!("src/fixtures/opcodes/{instruction:?}.bin");
+                std::fs::write(file_path, serialized_prover_input)?;
 
-            Ok::<(), anyhow::Error>(())
+                Ok::<(), anyhow::Error>(())
+            }
+            .await;
+
+            result.map_err(|e| (instruction, e))
         })
         .buffer_unordered(concurrency_level)
         .for_each(|result| async {
-            if let Err(e) = result {
-                eprintln!("Error processing instruction: {:?}", e);
+            if let Err((instruction, e)) = result {
+                println!(
+                    "cargo::warning=Error processing instruction {:?}: {:?}",
+                    instruction, e
+                );
             }
         })
         .await;

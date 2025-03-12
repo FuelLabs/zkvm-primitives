@@ -24,6 +24,7 @@ mod tests {
     use fuel_zkvm_primitives_utils::vm::crypto::CryptoInstruction;
     use fuel_zkvm_primitives_utils::vm::memory::MemoryInstruction;
     use fuel_zkvm_primitives_utils::vm::other::OtherInstruction;
+    use fuel_zkvm_primitives_utils::vm::zk::ZkInstruction;
 
     fn basic_opcode_test(instruction: Instruction) {
         let serialized_input = get_opcode_input(instruction);
@@ -105,6 +106,17 @@ mod tests {
                 #[test]
                 fn [<test_contract_instruction_ $instruction:lower>]() {
                     basic_opcode_test(Instruction::CONTRACT(ContractInstruction::$instruction));
+                }
+            }
+        };
+    }
+
+    macro_rules! zk_test {
+        ($instruction:ident) => {
+            paste::paste! {
+                #[test]
+                fn [<test_zk_instruction_ $instruction:lower>]() {
+                    basic_opcode_test(Instruction::ZK(ZkInstruction::$instruction));
                 }
             }
         };
@@ -235,4 +247,8 @@ mod tests {
     // special test cases
     // this was generated with 30M gas limit by modifying test_consensus_parameters.json
     contract_test!(SPECIAL_MEMORY_STACK_AND_HEAP_ALLOCS);
+
+    // ZK Tests. Compare the number with zk.rs
+    zk_test!(ECOP_ALT_BN_128);
+    zk_test!(EPAR_ALT_BN_128);
 }

@@ -6,6 +6,7 @@ use crate::vm::control::ControlInstruction;
 use crate::vm::crypto::CryptoInstruction;
 use crate::vm::memory::MemoryInstruction;
 use crate::vm::other::OtherInstruction;
+use crate::vm::zk::ZkInstruction;
 use fuels::types::input::Input as TxInput;
 use fuels::types::output::Output as TxOutput;
 
@@ -17,6 +18,8 @@ pub mod control;
 pub mod crypto;
 pub mod memory;
 pub mod other;
+pub mod utils;
+pub mod zk;
 
 #[cfg(feature = "enhanced_enums")]
 static INSTRUCTION_VARIANTS: std::sync::OnceLock<Vec<Instruction>> = std::sync::OnceLock::new();
@@ -38,6 +41,7 @@ pub enum Instruction {
     CRYPTO(CryptoInstruction),
     OTHER(OtherInstruction),
     CONTRACT(ContractInstruction),
+    ZK(ZkInstruction),
 }
 
 impl AsRepr for Instruction {
@@ -50,6 +54,7 @@ impl AsRepr for Instruction {
             Instruction::CRYPTO(crypto) => crypto.repr(),
             Instruction::OTHER(other) => other.repr(),
             Instruction::CONTRACT(contract) => contract.repr(),
+            Instruction::ZK(zk) => zk.repr(),
         }
     }
 
@@ -62,6 +67,7 @@ impl AsRepr for Instruction {
             Instruction::CRYPTO(crypto) => crypto.script_data(),
             Instruction::OTHER(other) => other.script_data(),
             Instruction::CONTRACT(contract) => contract.script_data(),
+            Instruction::ZK(zk) => zk.script_data(),
         }
     }
 
@@ -94,6 +100,7 @@ impl clap::ValueEnum for Instruction {
             Instruction::CRYPTO(i) => i.to_possible_value(),
             Instruction::OTHER(i) => i.to_possible_value(),
             Instruction::CONTRACT(i) => i.to_possible_value(),
+            Instruction::ZK(i) => i.to_possible_value(),
         }
     }
 }

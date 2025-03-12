@@ -12,6 +12,7 @@ fuel-core-storage = { workspace = true, features = ["test-helpers"] }
 fuel-core-types = { workspace = true }
 fuels = { workspace = true }
 fuels-core = { workspace = true }
+hex = "0.4.3"
 p256 = { version = "0.13.2", features = ["ecdsa-core"] }
 serde = { workspace = true, optional = true }
 tracing = { version = "0.1" }

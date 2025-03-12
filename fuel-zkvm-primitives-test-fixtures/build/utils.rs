@@ -70,13 +70,12 @@ pub fn get_temp_db() -> Database<OnChain> {
     Database::from_storage(DataSource::new(data, RegularStage::default()))
 }
 
-pub async fn start_node_with_db(
-    db: Database<OnChain>,
-    consensus_parameters: Option<ConsensusParameters>,
-) -> (FuelService, WalletUnlocked) {
-    let mut consensus_parameters = consensus_parameters.unwrap_or_else(|| {
-        serde_json::from_slice::<ConsensusParameters>(CONSENSUS_PARAMETERS).expect("Invalid JSON")
-    });
+fn consensus_parameters() -> ConsensusParameters {
+    serde_json::from_slice::<ConsensusParameters>(CONSENSUS_PARAMETERS).expect("Invalid JSON")
+}
+
+pub async fn start_node_with_db(db: Database<OnChain>) -> (FuelService, WalletUnlocked) {
+    let mut consensus_parameters = consensus_parameters();
 
     let config = get_config(&mut consensus_parameters, Path::new("/tmp"));
 
@@ -97,17 +96,13 @@ pub async fn start_node_with_db(
     (fuel_node, wallet)
 }
 
-pub async fn start_node(
-    consensus_parameters: Option<ConsensusParameters>,
-) -> (FuelService, WalletUnlocked) {
+pub async fn start_node() -> (FuelService, WalletUnlocked) {
     // Suggest to set "RUST_LOG=info;FUEL_TRACE=1" to see the logs
     // If you want to change the block gas limit,
     // please update next values in the `test_test_consensus_parameters.json`:
     // `max_gas_per_tx`, `max_gas_per_predicate` and `block_gas_limit`
     let tmp = tempfile::tempdir().expect("Unable to create temp dir");
-    let mut consensus_parameters = consensus_parameters.unwrap_or_else(|| {
-        serde_json::from_slice::<ConsensusParameters>(CONSENSUS_PARAMETERS).expect("Invalid JSON")
-    });
+    let mut consensus_parameters = consensus_parameters();
 
     let fuel_node = FuelService::new_node(get_config(&mut consensus_parameters, tmp.path()))
         .await

@@ -27,7 +27,7 @@ impl Fixture {
     }
 }
 
-impl ValueEnum for Fixture {
+impl clap::ValueEnum for Fixture {
     fn value_variants<'a>() -> &'a [Self] {
         all_fixtures().as_slice()
     }

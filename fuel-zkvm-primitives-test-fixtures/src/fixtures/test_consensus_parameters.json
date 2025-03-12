@@ -1,5 +1,5 @@
 {
-  "V1": {
+  "V2": {
     "tx_params": {
       "V1": {
         "max_inputs": 255,
@@ -38,7 +38,7 @@
     },
     "chain_id": 9889,
     "gas_costs": {
-      "V4": {
+      "V5": {
         "add": 2,
         "addi": 2,
         "and": 2,
@@ -124,6 +124,7 @@
         "wqmm": 6,
         "xor": 2,
         "xori": 2,
+        "ecop": 8500,
         "aloc": {
           "LightOperation": {
             "base": 2,
@@ -268,6 +269,12 @@
             "gas_per_unit": 5776
           }
         },
+        "epar": {
+          "HeavyOperation": {
+            "base": 122871,
+            "gas_per_unit": 89930
+          }
+        },
         "contract_root": {
           "LightOperation": {
             "base": 24,
@@ -291,6 +298,7 @@
     },
     "base_asset_id": "0xf8f8b6283d7fa5b672b530cbb84fcccb4ff8dc40f8176ef4544ddb1f1952ad07",
     "block_gas_limit": 1000000,
+    "block_transaction_size_limit": 1000000000,
     "privileged_address": "eb42c979046d091f4f524e1efd8d4ffad92629b9a506b268a511861b0dbf2366"
   }
 }
