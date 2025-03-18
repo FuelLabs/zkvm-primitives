@@ -9,3 +9,4 @@
 use tai64 as _;
 
 pub mod block_execution_fixtures;
+pub mod decompression_fixtures;

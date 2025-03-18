@@ -46,8 +46,8 @@ impl Blob {
         self._inner
     }
 
-    #[cfg(test)]
-    fn from_inner(inner: [u8; 131072]) -> Self {
+    #[cfg(feature = "test-helpers")]
+    pub fn from_inner(inner: [u8; 131072]) -> Self {
         Self {
             _inner: Box::new(inner),
         }
@@ -83,7 +83,7 @@ pub struct Input {
     // a set of blobs make up a compressed bundle
     // a compressed bundle is made of several bundles
     // each bundle is made of several da compressed block
-    raw_da_blobs: Vec<Blob>,
+    pub raw_da_blobs: Vec<Blob>,
 }
 
 sol! {
@@ -288,30 +288,5 @@ mod tests {
 
         assert_eq!(result.first_block_height, U256::from(first_height));
         assert_eq!(result.last_block_height, U256::from(last_height));
-    }
-
-    #[test]
-    fn prove_succeeds__with_real_data() {
-        let blobs = include_bytes!("decompression_gzip_game/mainnet_blobs.bin");
-        let blobs: Vec<Vec<u8>> = bincode::deserialize(blobs).unwrap();
-
-        let blobs = blobs
-            .iter()
-            .map(|blob| {
-                let mut blob_array = [0; 131072];
-                blob_array.copy_from_slice(&blob[8..]);
-                Blob::from_inner(blob_array)
-            })
-            .collect::<Vec<_>>();
-
-        let input = Input {
-            raw_da_blobs: blobs,
-        };
-
-        let input_bytes = bincode::serialize(&input).unwrap();
-
-        let result = prove(&input_bytes).unwrap();
-
-        assert!(result.first_block_height < result.last_block_height);
     }
 }
